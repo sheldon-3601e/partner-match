@@ -3,10 +3,10 @@
 # @from <a href="https://yupi.icu">编程导航知识星球</a>
 
 -- 创建库
-create database if not exists my_db;
+create database if not exists my_match;
 
 -- 切换库
-use my_db;
+use my_match;
 
 -- 用户表
 create table if not exists user
@@ -14,17 +14,38 @@ create table if not exists user
     id           bigint auto_increment comment 'id' primary key,
     userAccount  varchar(256)                           not null comment '账号',
     userPassword varchar(512)                           not null comment '密码',
-    unionId      varchar(256)                           null comment '微信开放平台id',
-    mpOpenId     varchar(256)                           null comment '公众号openId',
     userName     varchar(256)                           null comment '用户昵称',
     userAvatar   varchar(1024)                          null comment '用户头像',
     userProfile  varchar(512)                           null comment '用户简介',
+    tags         varchar(1024)                          null comment '标签列表',
     userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
     createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint      default 0                 not null comment '是否删除',
-    index idx_unionId (unionId)
+    isDelete     tinyint      default 0                 not null comment '是否删除'
 ) comment '用户' collate = utf8mb4_unicode_ci;
+
+-- 标签表
+create table if not exists tag
+(
+    id         bigint auto_increment comment 'id'
+        primary key,
+    tagName    varchar(256)                       not null comment '标签内容',
+    userId     bigint                             null comment '标签 id',
+    parentId   bigint                             null comment '父标签 id',
+    isParent   tinyint                            null comment '0 - 不是， 1 - 是 父标签',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete   tinyint  default 0                 not null comment '是否删除',
+    constraint idx_tagName
+        unique (tagName)
+)
+    comment '标签' collate = utf8mb4_unicode_ci;
+
+create index idx_userId
+    on my_match.tag (userId);
+
+
+
 
 -- 帖子表
 create table if not exists post
