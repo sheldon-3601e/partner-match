@@ -1,10 +1,10 @@
 package com.sheldon.match.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 标签
@@ -38,6 +38,11 @@ public class Tag implements Serializable {
      * 0 - 不是， 1 - 是 父标签
      */
     private Integer isParent;
+
+    /**
+     * 标签被使用次数
+     */
+    private Integer count;
 
     /**
      * 创建时间

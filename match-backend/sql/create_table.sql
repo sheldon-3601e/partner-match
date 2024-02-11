@@ -1,6 +1,6 @@
 # 数据库初始化
-# @author <a href="https://github.com/liyupi">程序员鱼皮</a>
-# @from <a href="https://yupi.icu">编程导航知识星球</a>
+# @author <a href="https://github.com/sheldon-3601e">sheldon</a>
+# @from <a href="https://github.com/sheldon-3601e">sheldon</a>
 
 -- 创建库
 create database if not exists my_match;
@@ -30,9 +30,10 @@ create table if not exists tag
     id         bigint auto_increment comment 'id'
         primary key,
     tagName    varchar(256)                       not null comment '标签内容',
-    userId     bigint                             null comment '标签 id',
+    userId     bigint                             null comment '标签作者 id',
     parentId   bigint                             null comment '父标签 id',
     isParent   tinyint                            null comment '0 - 不是， 1 - 是 父标签',
+    count      int      default 0                 not null comment '标签被使用次数',
     createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete   tinyint  default 0                 not null comment '是否删除',
