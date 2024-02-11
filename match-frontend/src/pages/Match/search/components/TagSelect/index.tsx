@@ -1,8 +1,8 @@
+import React, { FC, useState } from 'react'; // 导入 React 相关组件和 hooks
 import { DownOutlined, UpOutlined } from '@ant-design/icons'; // 导入 Ant Design 图标
 import { Tag } from 'antd'; // 导入 Ant Design 标签组件
 import classNames from 'classnames'; // 用于动态设置 className 的工具库
 import { useMergedState } from 'rc-util'; // 使用 useMergedState 自定义 hook
-import React, { FC, useState } from 'react'; // 导入 React 相关组件和 hooks
 import useStyles from './index.style'; // 引入样式文件
 
 // 解构出 CheckableTag 组件
@@ -75,43 +75,20 @@ const TagSelect: FC<TagSelectProps> & {
     node.type &&
     (node.type.isTagSelectOption || node.type.displayName === 'TagSelectOption');
 
-  // 获取所有选项的值
-  const getAllTags = () => {
-    const childrenArray = React.Children.toArray(children) as TagSelectOptionElement[];
-    const checkedTags = childrenArray
-      .filter((child) => isTagSelectOption(child))
-      .map((child) => child.props.value);
-    return checkedTags || [];
-  };
-
-  // 全选/取消全选时的回调函数
-  const onSelectAll = (checked: boolean) => {
-    let checkedTags: (string | number)[] = [];
-    if (checked) {
-      checkedTags = getAllTags();
-    }
-    setValue(checkedTags);
-  };
-
   // 单个标签改变选中状态时的回调函数
   const handleTagChange = (tag: string | number, checked: boolean) => {
     const checkedTags: (string | number)[] = [...(value || [])];
-    // console.log(checkedTags)
     const index = checkedTags.indexOf(tag);
     if (checked && index === -1) {
       checkedTags.push(tag);
     } else if (!checked && index > -1) {
       checkedTags.splice(index, 1);
     }
-    // console.log(checkedTags)
     setValue(checkedTags);
   };
 
-  // 判断是否全部选中
-  const checkedAll = getAllTags().length === value?.length;
-
   // 解构出 actionsText 中的相关属性或使用默认值
-  const { expandText = '展开', collapseText = '收起', selectAllText = '全部' } = actionsText;
+  const { expandText: defaultExpandText = '展开', collapseText: defaultCollapseText = '收起', selectAllText: defaultSelectAllText = '全部' } = actionsText;
 
   // 根据展开状态和是否可展开设置 className
   const cls = classNames(styles.tagSelect, className, {
@@ -121,12 +98,6 @@ const TagSelect: FC<TagSelectProps> & {
 
   return (
     <div className={cls} style={style}>
-      {/* 是否隐藏“全部”选项 */}
-      {hideCheckAll ? null : (
-        <CheckableTag checked={checkedAll} key="tag-select-__all__" onChange={onSelectAll}>
-          {selectAllText}
-        </CheckableTag>
-      )}
       {/* 遍历子元素，如果是 TagSelectOption 则克隆并传递相关属性 */}
       {children &&
         React.Children.map(children, (child: TagSelectOptionElement) => {
@@ -150,11 +121,11 @@ const TagSelect: FC<TagSelectProps> & {
         >
           {expand ? (
             <>
-              {collapseText} <UpOutlined />
+              {defaultCollapseText} <UpOutlined />
             </>
           ) : (
             <>
-              {expandText}
+              {defaultExpandText}
               <DownOutlined />
             </>
           )}

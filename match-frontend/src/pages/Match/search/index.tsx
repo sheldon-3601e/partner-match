@@ -146,9 +146,11 @@ const Search: FC<SearchProps> = () => {
   // 标签的父标签列表
   const [tagParentList, setTagParentList] = useState<API.TagVO[]>([]);
   // 当前用户选择的父标签
-  const [selectedTags, setSelectedTags] = useState<(string | number)[]>([]);
+  const [tagParentSelectedList, setTagParentSelectedList] = useState<(string | number)[]>([]);
   // 父标签所对应的子标签
   const [tagCurrentList, setTagCurrentList] = useState<API.TagVO[]>([]);
+  // 用户选中的标签
+  const [tagCurrentSelectedList, setTagCurrentSelectedList] = useState<(string | number)[]>([]);
 
   const loadTagList = async () => {
     const res = await listTagVoUsingPost();
@@ -167,11 +169,16 @@ const Search: FC<SearchProps> = () => {
 
   // 监听用户选择的父标签，筛选中对应的子标签
   useEffect(() => {
-    // console.log(selectedTags);
-    const tagCurrent = tagList.filter((tag) => selectedTags.includes(String(tag.parentId)));
+    // console.log(tagParentSelectedList);
+    const tagCurrent = tagList.filter((tag) => tagParentSelectedList.includes(String(tag.parentId)));
     // console.log(tagCurrent);
     setTagCurrentList(tagCurrent)
-  }, [selectedTags]);
+  }, [tagParentSelectedList]);
+
+  // 监听用户选择的子标签，查询用户
+  useEffect(() => {
+    console.log(tagCurrentSelectedList)
+  }, [tagCurrentSelectedList]);
 
   return (
     <PageContainer
@@ -199,7 +206,7 @@ const Search: FC<SearchProps> = () => {
           >
             <StandardFormRow title="标签类别" block style={{ paddingBottom: 11 }}>
               <FormItem name="category">
-                <TagSelect expandable onChange={(value) => setSelectedTags(value)}>
+                <TagSelect expandable onChange={(value) => setTagParentSelectedList(value)}>
                   {tagParentList.map((tag) => (
                     <TagSelect.Option value={tag.id!} key={tag.id}>
                       {tag.tagName}
@@ -212,7 +219,7 @@ const Search: FC<SearchProps> = () => {
               <FormItem name="category">
                 <TagSelect
                   expandable
-                  onChange={(selectedValues) => setSelectedTags(selectedValues)}
+                  onChange={(value) => setTagCurrentSelectedList(value)}
                 >
                   {tagCurrentList.map((tag) => (
                     <TagSelect.Option value={tag.id!} key={tag.id}>
