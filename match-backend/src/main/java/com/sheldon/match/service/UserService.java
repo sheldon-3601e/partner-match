@@ -2,13 +2,14 @@ package com.sheldon.match.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.sheldon.match.model.dto.user.UserQueryRequest;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.LoginUserVO;
-import com.sheldon.match.model.dto.user.UserQueryRequest;
 import com.sheldon.match.model.vo.UserVO;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 用户服务
@@ -118,7 +119,28 @@ public interface UserService extends IService<User> {
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+    /**
+     * 通过SQL查询用户
+     *
+     * @param tagNameList
+     * @return
+     */
     List<UserVO> searchUserByTagsUseSQL(List<String> tagNameList);
 
+    /**
+     * 通过内存查询用户
+     *
+     * @param tagNameList
+     * @return
+     */
     List<UserVO> searchUserByTagsUseMemory(List<String> tagNameList);
+
+    /**
+     * 筛选符合标签的用户
+     *
+     * @param tagNameList
+     * @return
+     */
+    List<User> filtersUsersByTag(List<User> userList, List<String> tagNameList);
+
 }

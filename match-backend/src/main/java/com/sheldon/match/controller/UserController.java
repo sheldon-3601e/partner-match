@@ -1,30 +1,21 @@
 package com.sheldon.match.controller;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sheldon.match.common.ErrorCode;
-import com.sheldon.match.common.ResultUtils;
-import com.sheldon.match.constant.UserConstant;
-import com.sheldon.match.model.dto.user.UserLoginRequest;
-import com.sheldon.match.model.entity.User;
-import com.sheldon.match.model.vo.LoginUserVO;
-import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.annotation.AuthCheck;
 import com.sheldon.match.common.BaseResponse;
 import com.sheldon.match.common.DeleteRequest;
+import com.sheldon.match.common.ErrorCode;
+import com.sheldon.match.common.ResultUtils;
 import com.sheldon.match.config.WxOpenConfig;
+import com.sheldon.match.constant.UserConstant;
 import com.sheldon.match.exception.BusinessException;
 import com.sheldon.match.exception.ThrowUtils;
-import com.sheldon.match.model.dto.user.UserAddRequest;
-import com.sheldon.match.model.dto.user.UserQueryRequest;
-import com.sheldon.match.model.dto.user.UserRegisterRequest;
-import com.sheldon.match.model.dto.user.UserUpdateMyRequest;
-import com.sheldon.match.model.dto.user.UserUpdateRequest;
-
-import java.util.List;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.sheldon.match.model.dto.user.*;
+import com.sheldon.match.model.entity.User;
+import com.sheldon.match.model.vo.LoginUserVO;
+import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.UserService;
 import com.sheldon.match.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +25,12 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * 用户接口
@@ -107,7 +98,7 @@ public class UserController {
      */
     @GetMapping("/login/wx_open")
     public BaseResponse<LoginUserVO> userLoginByWxOpen(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("code") String code) {
+                                                       @RequestParam("code") String code) {
         WxOAuth2AccessToken accessToken;
         try {
             WxMpService wxService = wxOpenConfig.getWxMpService();
@@ -207,7 +198,7 @@ public class UserController {
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
-            HttpServletRequest request) {
+                                            HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -260,7 +251,7 @@ public class UserController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+                                                   HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
@@ -277,7 +268,7 @@ public class UserController {
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+                                                       HttpServletRequest request) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -304,7 +295,7 @@ public class UserController {
      */
     @PostMapping("/update/my")
     public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
-            HttpServletRequest request) {
+                                              HttpServletRequest request) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -315,5 +306,34 @@ public class UserController {
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    @PostMapping("/list/tag/page/vo")
+    public BaseResponse<List<UserVO>> listUserVOByTagAndPage(@RequestBody UserQueryByTagRequest userQueryByTagRequest,
+                                                             HttpServletRequest request) {
+        if (userQueryByTagRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long current = userQueryByTagRequest.getCurrent();
+        long size = userQueryByTagRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        String userInput = userQueryByTagRequest.getUserInput();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        if (!StringUtils.isEmpty(userInput)) {
+            queryWrapper.like("userName", userInput).or().like("userProfile", userInput);
+        }
+        Page<User> userPage = userService.page(new Page<>(current, size),
+                queryWrapper);
+        List<User> userList = userPage.getRecords();
+        List<String> tagNameList = userQueryByTagRequest.getTagNameList();
+        // 使用正则表达式，将集合中是数字的字符串删除
+        tagNameList.removeIf(s -> s.matches("^[0-9]*$"));
+        if (!CollUtil.isEmpty(tagNameList)) {
+            userList = userService.filtersUsersByTag(userList, tagNameList);
+        }
+
+        List<UserVO> userVOList = userService.getUserVO(userList);
+        return ResultUtils.success(userVOList);
     }
 }

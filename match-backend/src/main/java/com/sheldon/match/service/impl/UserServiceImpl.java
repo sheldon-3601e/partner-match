@@ -322,4 +322,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return this.getUserVO(userList);
     }
 
+    @Override
+    public List<User> filtersUsersByTag(List<User> userList, List<String> tagNameList) {
+        if (CollUtil.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "标签为空");
+        }
+        // 2.遍历用户
+        List<User> userRes = userList.stream().filter(user -> {
+            // 3.解析标签列表，转化为字符串集合
+            Gson gson = new Gson();
+            Set<String> tagNameSet = gson.fromJson(user.getTags(), new TypeToken<Set<String>>() {}.getType());
+            if (CollUtil.isEmpty(tagNameSet)) {
+                return false;
+            }
+            // 4.判断是否包含标签
+            return tagNameSet.containsAll(tagNameList);
+        }).collect(Collectors.toList());
+
+        return userRes;
+    }
+
 }

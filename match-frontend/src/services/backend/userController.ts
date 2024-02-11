@@ -97,6 +97,21 @@ export async function listUserVoByPageUsingPost(
   });
 }
 
+/** listUserVOByTagAndPage POST /api/user/list/tag/page/vo */
+export async function listUserVoByTagAndPageUsingPost(
+  body: API.UserQueryByTagRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseListUserVO_>('/api/user/list/tag/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** userLogin POST /api/user/login */
 export async function userLoginUsingPost(
   body: API.UserLoginRequest,
