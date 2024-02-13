@@ -18,6 +18,7 @@ export default [
       { icon: 'table', path: '/match/team', component: './Match/Team', name: '队伍' },
     ],
   },
+  { path: '/account/settings', icon: 'smile', component: './Account/Settings', name: '个人设置' },
   {
     path: '/admin',
     icon: 'crown',

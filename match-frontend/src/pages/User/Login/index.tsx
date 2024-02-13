@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import Settings from '../../../../config/defaultSettings';
 
 const Login: React.FC = () => {
-  const [type, setType] = useState<string>('account');
+  const [type, setType] = useState<string>('Account');
   const { initialState, setInitialState } = useModel('@@initialState');
   const containerClassName = useEmotionCss(() => {
     return {
@@ -81,12 +81,12 @@ const Login: React.FC = () => {
             centered
             items={[
               {
-                key: 'account',
+                key: 'Account',
                 label: '账户密码登录',
               },
             ]}
           />
-          {type === 'account' && (
+          {type === 'Account' && (
             <>
               <ProFormText
                 name="userAccount"
