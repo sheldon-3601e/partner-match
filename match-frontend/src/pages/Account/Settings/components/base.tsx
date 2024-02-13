@@ -1,18 +1,19 @@
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined } from '@ant-design/icons'; // 引入上传图标
 import {
   ProForm,
-  ProFormDependency,
   ProFormFieldSet,
+  ProFormRadio,
   ProFormSelect,
   ProFormText,
   ProFormTextArea,
-} from '@ant-design/pro-components';
-import { useRequest } from '@umijs/max';
-import { Button, Input, message, Upload } from 'antd';
-import React from 'react';
-import { queryCity, queryCurrent, queryProvince } from '../service';
-import useStyles from './index.style';
+} from '@ant-design/pro-components'; // 引入 ProForm 相关组件
+import { useRequest } from '@umijs/max'; // 使用 useRequest Hook
+import { Button, Input, message, Upload } from 'antd'; // 引入 antd 组件
+import React from 'react'; // 引入 React 库
+import { queryCurrent } from '../service'; // 引入查询服务
+import useStyles from './index.style'; // 引入样式
 
+// 自定义电话号码验证器
 const validatorPhone = (rule: any, value: string[], callback: (message?: string) => void) => {
   if (!value[0]) {
     callback('Please input your area code!');
@@ -23,9 +24,19 @@ const validatorPhone = (rule: any, value: string[], callback: (message?: string)
   callback();
 };
 
+export const waitTime = (time: number = 100) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, time);
+  });
+};
+
+// 定义 BaseView 组件
 const BaseView: React.FC = () => {
-  const { styles } = useStyles();
-  // 头像组件 方便以后独立，增加裁剪之类的功能
+  const { styles } = useStyles(); // 使用 useStyles 自定义样式
+
+  // AvatarView 组件，用于显示头像
   const AvatarView = ({ avatar }: { avatar: string }) => (
     <>
       <div className={styles.avatar_title}>头像</div>
@@ -42,9 +53,13 @@ const BaseView: React.FC = () => {
       </Upload>
     </>
   );
+
+  // 获取当前用户信息
   const { data: currentUser, loading } = useRequest(() => {
     return queryCurrent();
   });
+
+  // 获取用户头像 URL
   const getAvatarURL = () => {
     if (currentUser) {
       if (currentUser.avatar) {
@@ -55,14 +70,18 @@ const BaseView: React.FC = () => {
     }
     return '';
   };
+
+  // 处理表单提交事件
   const handleFinish = async () => {
     message.success('更新基本信息成功');
   };
+
   return (
     <div className={styles.baseView}>
       {loading ? null : (
         <>
           <div className={styles.left}>
+            {/* 表单 */}
             <ProForm
               layout="vertical"
               onFinish={handleFinish}
@@ -78,20 +97,10 @@ const BaseView: React.FC = () => {
               }}
               hideRequiredMark
             >
+              {/* 输入昵称 */}
               <ProFormText
                 width="md"
-                name="email"
-                label="邮箱"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的邮箱!',
-                  },
-                ]}
-              />
-              <ProFormText
-                width="md"
-                name="name"
+                name="userName"
                 label="昵称"
                 rules={[
                   {
@@ -100,8 +109,77 @@ const BaseView: React.FC = () => {
                   },
                 ]}
               />
+              {/* 选择性别 */}
+              <ProFormSelect
+                width="sm"
+                name="userGender"
+                label="性别"
+                rules={[
+                  {
+                    required: true,
+                    message: '请选择性别',
+                  },
+                ]}
+                options={[
+                  {
+                    label: '男',
+                    value: '1',
+                  },
+                  {
+                    label: '女',
+                    value: '0',
+                  },
+                ]}
+              />
+              <ProFormSelect
+                name="select2"
+                label="支持搜索查询的 Select"
+                showSearch
+                debounceTime={300}
+                request={async ({ keyWords }) => {
+                  await waitTime(100);
+                  return [
+                    {
+                      value: keyWords,
+                      label: '目标_target',
+                    },
+                    { value: '520000201604258831', label: 'Patricia Lopez' },
+                    { value: '520000198509222123', label: 'Jose Martinez' },
+                    { value: '210000200811194757', label: 'Elizabeth Thomas' },
+                    { value: '530000198808222758', label: 'Scott Anderson' },
+                    { value: '500000198703236285', label: 'George Jackson' },
+                    { value: '610000199906148074', label: 'Linda Hernandez' },
+                    { value: '150000197210168659', label: 'Sandra Hall' },
+                    { label: '目标_target' },
+                  ];
+                }}
+                placeholder="Please select a country"
+                rules={[{ required: true, message: 'Please select your country!' }]}
+              />
+              <ProFormSelect
+                name="tags"
+                label="Select[multiple]"
+                valueEnum={{
+                  red: 'Red',
+                  green: 'Green',
+                  blue: 'Blue',
+                }}
+                fieldProps={{
+                  mode: 'multiple',
+                }}
+                placeholder="Please select favorite colors"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select your favorite colors!',
+                    type: 'array',
+                  },
+                ]}
+              />
+
+              {/* 输入个人简介 */}
               <ProFormTextArea
-                name="profile"
+                name="userProfile"
                 label="个人简介"
                 rules={[
                   {
@@ -111,95 +189,7 @@ const BaseView: React.FC = () => {
                 ]}
                 placeholder="个人简介"
               />
-              <ProFormSelect
-                width="sm"
-                name="country"
-                label="国家/地区"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的国家或地区!',
-                  },
-                ]}
-                options={[
-                  {
-                    label: '中国',
-                    value: 'China',
-                  },
-                ]}
-              />
-
-              <ProForm.Group title="所在省市" size={8}>
-                <ProFormSelect
-                  rules={[
-                    {
-                      required: true,
-                      message: '请输入您的所在省!',
-                    },
-                  ]}
-                  width="sm"
-                  fieldProps={{
-                    labelInValue: true,
-                  }}
-                  name="province"
-                  className={styles.item}
-                  request={async () => {
-                    return queryProvince().then(({ data }) => {
-                      return data.map((item) => {
-                        return {
-                          label: item.name,
-                          value: item.id,
-                        };
-                      });
-                    });
-                  }}
-                />
-                <ProFormDependency name={['province']}>
-                  {({ province }) => {
-                    return (
-                      <ProFormSelect
-                        params={{
-                          key: province?.value,
-                        }}
-                        name="city"
-                        width="sm"
-                        rules={[
-                          {
-                            required: true,
-                            message: '请输入您的所在城市!',
-                          },
-                        ]}
-                        disabled={!province}
-                        className={styles.item}
-                        request={async () => {
-                          if (!province?.key) {
-                            return [];
-                          }
-                          return queryCity(province.key || '').then(({ data }) => {
-                            return data.map((item) => {
-                              return {
-                                label: item.name,
-                                value: item.id,
-                              };
-                            });
-                          });
-                        }}
-                      />
-                    );
-                  }}
-                </ProFormDependency>
-              </ProForm.Group>
-              <ProFormText
-                width="md"
-                name="address"
-                label="街道地址"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的街道地址!',
-                  },
-                ]}
-              />
+              {/* 输入联系电话 */}
               <ProFormFieldSet
                 name="phone"
                 label="联系电话"
@@ -216,9 +206,22 @@ const BaseView: React.FC = () => {
                 <Input className={styles.area_code} />
                 <Input className={styles.phone_number} />
               </ProFormFieldSet>
+              {/* 输入邮箱 */}
+              <ProFormText
+                width="md"
+                name="email"
+                label="邮箱"
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入您的邮箱!',
+                  },
+                ]}
+              />
             </ProForm>
           </div>
           <div className={styles.right}>
+            {/* 显示头像 */}
             <AvatarView avatar={getAvatarURL()} />
           </div>
         </>
@@ -226,4 +229,5 @@ const BaseView: React.FC = () => {
     </div>
   );
 };
-export default BaseView;
+
+export default BaseView; // 导出 BaseView 组件
