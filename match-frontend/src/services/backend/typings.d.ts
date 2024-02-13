@@ -331,8 +331,13 @@ declare namespace API {
   };
 
   type UserUpdateMyRequest = {
+    id?: string;
+    tags?: string[];
     userAvatar?: string;
+    userEmail?: string;
+    userGender?: string;
     userName?: string;
+    userPhone?: string;
     userProfile?: string;
   };
 

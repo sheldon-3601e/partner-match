@@ -143,4 +143,10 @@ public interface UserService extends IService<User> {
      */
     List<User> filtersUsersByTag(List<User> userList, List<String> tagNameList);
 
+    /**
+     * 将标签字符串转化为标签列表
+     * @param user
+     * @return
+     */
+    List<String> getTags(User user);
 }

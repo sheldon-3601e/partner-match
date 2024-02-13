@@ -166,6 +166,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (currentUser == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
+
         return currentUser;
     }
 
@@ -229,6 +230,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         LoginUserVO loginUserVO = new LoginUserVO();
         BeanUtils.copyProperties(user, loginUserVO);
+        loginUserVO.setTags(this.getTags(user));
         return loginUserVO;
     }
 
@@ -239,6 +241,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
+        userVO.setTags(this.getTags(user));
         return userVO;
     }
 
@@ -340,6 +343,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }).collect(Collectors.toList());
 
         return userRes;
+    }
+
+
+    @Override
+    public List<String> getTags(User user) {
+        Gson gson = new Gson();
+        return gson.fromJson(user.getTags(), new TypeToken<List<String>>() {}.getType());
     }
 
 }

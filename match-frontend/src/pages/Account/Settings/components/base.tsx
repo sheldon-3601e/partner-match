@@ -4,6 +4,7 @@ import {ProForm, ProFormFieldSet, ProFormSelect, ProFormText, ProFormTextArea,} 
 import {Button, Input, message, Upload} from 'antd'; // 引入 antd 组件
 import React, {useState} from 'react'; // 引入 React 库
 import useStyles from './index.style';
+import {updateMyUserUsingPost} from "@/services/backend/userController";
 
 // 自定义电话号码验证器
 const validatorPhone = (rule: any, value: string[], callback: (message?: string) => void) => {
@@ -44,10 +45,11 @@ const BaseView: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   console.log(initialState);
 
-  const [currentUser, setCurrentUser] = useState(initialState?.currentUser);
-  const [tagList, setTagList] = useState(handleTagList(initialState?.tagList ?? []));
+  const [currentUser] = useState(initialState?.currentUser);
+  const [tagList] = useState(handleTagList(initialState?.tagList ?? []));
 
 
+  // TODO 上传头像
   // AvatarView 组件，用于显示头像
   const AvatarView = ({ avatar }: { avatar: string }) => (
     <>
@@ -79,8 +81,14 @@ const BaseView: React.FC = () => {
   };
 
   // 处理表单提交事件
-  const handleFinish = async () => {
-    message.success('更新基本信息成功');
+  const handleFinish = async (value: API.UserUpdateMyRequest) => {
+    console.log(value)
+    const res = await updateMyUserUsingPost(value)
+    if (res.data) {
+      message.success('更新基本信息成功');
+    } else {
+      message.error('更新失败，请您重试');
+    }
   };
 
   return (
@@ -90,12 +98,11 @@ const BaseView: React.FC = () => {
           {/* 表单 */}
           <ProForm
             layout="vertical"
-            onFinish={handleFinish}
+            onFinish={(value) => handleFinish(value)}
             submitter={{
               searchConfig: {
                 submitText: '更新基本信息',
               },
-              render: (_, dom) => dom[1],
             }}
             initialValues={{
               ...currentUser,
@@ -137,6 +144,7 @@ const BaseView: React.FC = () => {
                 },
               ]}
             />
+            {/*TODO 标签展示列表应该与用户已经选择的标签互斥*/}
             <ProFormSelect
               name="tags"
               label="标签"
