@@ -1,17 +1,9 @@
-import { UploadOutlined } from '@ant-design/icons'; // 引入上传图标
-import {
-  ProForm,
-  ProFormFieldSet,
-  ProFormRadio,
-  ProFormSelect,
-  ProFormText,
-  ProFormTextArea,
-} from '@ant-design/pro-components'; // 引入 ProForm 相关组件
-import { useRequest } from '@umijs/max'; // 使用 useRequest Hook
-import { Button, Input, message, Upload } from 'antd'; // 引入 antd 组件
-import React from 'react'; // 引入 React 库
-import { queryCurrent } from '../service'; // 引入查询服务
-import useStyles from './index.style'; // 引入样式
+import {useModel} from '@@/plugin-model';
+import {UploadOutlined} from '@ant-design/icons'; // 引入上传图标
+import {ProForm, ProFormFieldSet, ProFormSelect, ProFormText, ProFormTextArea,} from '@ant-design/pro-components'; // 引入 ProForm 相关组件
+import {Button, Input, message, Upload} from 'antd'; // 引入 antd 组件
+import React, {useState} from 'react'; // 引入 React 库
+import useStyles from './index.style';
 
 // 自定义电话号码验证器
 const validatorPhone = (rule: any, value: string[], callback: (message?: string) => void) => {
@@ -32,9 +24,29 @@ export const waitTime = (time: number = 100) => {
   });
 };
 
+// 将标签列表转为枚举类
 // 定义 BaseView 组件
+
+const handleTagList = (tagList: API.TagVO[]) => {
+  const result = tagList
+    .filter((item) => item.isParent !== 1) // 过滤掉 isParent 为 1 的对象
+    .reduce((acc, item) => {
+      // @ts-ignore
+      acc[item.tagName.toLowerCase()] = item.tagName;
+      return acc;
+    }, {});
+  console.log(result);
+  return result;
+};
+
 const BaseView: React.FC = () => {
   const { styles } = useStyles(); // 使用 useStyles 自定义样式
+  const { initialState } = useModel('@@initialState');
+  console.log(initialState);
+
+  const [currentUser, setCurrentUser] = useState(initialState?.currentUser);
+  const [tagList, setTagList] = useState(handleTagList(initialState?.tagList ?? []));
+
 
   // AvatarView 组件，用于显示头像
   const AvatarView = ({ avatar }: { avatar: string }) => (
@@ -54,16 +66,11 @@ const BaseView: React.FC = () => {
     </>
   );
 
-  // 获取当前用户信息
-  const { data: currentUser, loading } = useRequest(() => {
-    return queryCurrent();
-  });
-
   // 获取用户头像 URL
   const getAvatarURL = () => {
     if (currentUser) {
-      if (currentUser.avatar) {
-        return currentUser.avatar;
+      if (currentUser.userAvatar) {
+        return currentUser.userAvatar;
       }
       const url = 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png';
       return url;
@@ -78,154 +85,123 @@ const BaseView: React.FC = () => {
 
   return (
     <div className={styles.baseView}>
-      {loading ? null : (
-        <>
-          <div className={styles.left}>
-            {/* 表单 */}
-            <ProForm
-              layout="vertical"
-              onFinish={handleFinish}
-              submitter={{
-                searchConfig: {
-                  submitText: '更新基本信息',
+      <>
+        <div className={styles.left}>
+          {/* 表单 */}
+          <ProForm
+            layout="vertical"
+            onFinish={handleFinish}
+            submitter={{
+              searchConfig: {
+                submitText: '更新基本信息',
+              },
+              render: (_, dom) => dom[1],
+            }}
+            initialValues={{
+              ...currentUser,
+              phone: currentUser?.userPhone?.split('-'),
+            }}
+            hideRequiredMark
+          >
+            {/* 输入昵称 */}
+            <ProFormText
+              width="md"
+              name="userName"
+              label="昵称"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入您的昵称!',
                 },
-                render: (_, dom) => dom[1],
+              ]}
+            />
+            {/* 选择性别 */}
+            <ProFormSelect
+              width="sm"
+              name="userGender"
+              label="性别"
+              rules={[
+                {
+                  required: true,
+                  message: '请选择性别',
+                },
+              ]}
+              options={[
+                {
+                  label: '男',
+                  value: '1',
+                },
+                {
+                  label: '女',
+                  value: '0',
+                },
+              ]}
+            />
+            <ProFormSelect
+              name="tags"
+              label="标签"
+              valueEnum={tagList}
+              fieldProps={{
+                mode: 'multiple',
               }}
-              initialValues={{
-                ...currentUser,
-                phone: currentUser?.phone.split('-'),
-              }}
-              hideRequiredMark
-            >
-              {/* 输入昵称 */}
-              <ProFormText
-                width="md"
-                name="userName"
-                label="昵称"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的昵称!',
-                  },
-                ]}
-              />
-              {/* 选择性别 */}
-              <ProFormSelect
-                width="sm"
-                name="userGender"
-                label="性别"
-                rules={[
-                  {
-                    required: true,
-                    message: '请选择性别',
-                  },
-                ]}
-                options={[
-                  {
-                    label: '男',
-                    value: '1',
-                  },
-                  {
-                    label: '女',
-                    value: '0',
-                  },
-                ]}
-              />
-              <ProFormSelect
-                name="select2"
-                label="支持搜索查询的 Select"
-                showSearch
-                debounceTime={300}
-                request={async ({ keyWords }) => {
-                  await waitTime(100);
-                  return [
-                    {
-                      value: keyWords,
-                      label: '目标_target',
-                    },
-                    { value: '520000201604258831', label: 'Patricia Lopez' },
-                    { value: '520000198509222123', label: 'Jose Martinez' },
-                    { value: '210000200811194757', label: 'Elizabeth Thomas' },
-                    { value: '530000198808222758', label: 'Scott Anderson' },
-                    { value: '500000198703236285', label: 'George Jackson' },
-                    { value: '610000199906148074', label: 'Linda Hernandez' },
-                    { value: '150000197210168659', label: 'Sandra Hall' },
-                    { label: '目标_target' },
-                  ];
-                }}
-                placeholder="Please select a country"
-                rules={[{ required: true, message: 'Please select your country!' }]}
-              />
-              <ProFormSelect
-                name="tags"
-                label="Select[multiple]"
-                valueEnum={{
-                  red: 'Red',
-                  green: 'Green',
-                  blue: 'Blue',
-                }}
-                fieldProps={{
-                  mode: 'multiple',
-                }}
-                placeholder="Please select favorite colors"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please select your favorite colors!',
-                    type: 'array',
-                  },
-                ]}
-              />
+              placeholder="Please select favorite colors"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select your favorite colors!',
+                  type: 'array',
+                },
+              ]}
+            />
 
-              {/* 输入个人简介 */}
-              <ProFormTextArea
-                name="userProfile"
-                label="个人简介"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入个人简介!',
-                  },
-                ]}
-                placeholder="个人简介"
-              />
-              {/* 输入联系电话 */}
-              <ProFormFieldSet
-                name="phone"
-                label="联系电话"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的联系电话!',
-                  },
-                  {
-                    validator: validatorPhone,
-                  },
-                ]}
-              >
-                <Input className={styles.area_code} />
-                <Input className={styles.phone_number} />
-              </ProFormFieldSet>
-              {/* 输入邮箱 */}
-              <ProFormText
-                width="md"
-                name="email"
-                label="邮箱"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的邮箱!',
-                  },
-                ]}
-              />
-            </ProForm>
-          </div>
-          <div className={styles.right}>
-            {/* 显示头像 */}
-            <AvatarView avatar={getAvatarURL()} />
-          </div>
-        </>
-      )}
+            {/* 输入个人简介 */}
+            <ProFormTextArea
+              name="userProfile"
+              label="个人简介"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入个人简介!',
+                },
+              ]}
+              placeholder="个人简介"
+            />
+            {/* 输入联系电话 */}
+            <ProFormFieldSet
+              name="userPhone"
+              label="联系电话"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入您的联系电话!',
+                },
+                {
+                  validator: validatorPhone,
+                },
+              ]}
+            >
+              <Input className={styles.area_code} />
+              <Input className={styles.phone_number} />
+            </ProFormFieldSet>
+            {/* 输入邮箱 */}
+            <ProFormText
+              width="md"
+              name="userEmail"
+              label="邮箱"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入您的邮箱!',
+                },
+              ]}
+            />
+          </ProForm>
+        </div>
+        <div className={styles.right}>
+          {/* 显示头像 */}
+          <AvatarView avatar={getAvatarURL()} />
+        </div>
+      </>
     </div>
   );
 };

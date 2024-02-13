@@ -1,10 +1,10 @@
 package com.sheldon.match.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 用户
@@ -35,6 +35,11 @@ public class User implements Serializable {
     private String userName;
 
     /**
+     * 用户性别
+     */
+    private String userGender;
+
+    /**
      * 用户头像
      */
     private String userAvatar;
@@ -45,9 +50,19 @@ public class User implements Serializable {
     private String userProfile;
 
     /**
-     * 标签列表
+     * 标签 json 列表
      */
     private String tags;
+
+    /**
+     * 电话
+     */
+    private String userPhone;
+
+    /**
+     * 邮箱
+     */
+    private String userEmail;
 
     /**
      * 用户角色：user/admin/ban

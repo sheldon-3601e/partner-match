@@ -60,4 +60,5 @@ interface BaseResponse<T> {
  */
 interface InitialState {
   currentUser?: API.LoginUserVO;
+  tagList?: API.TagVO[];
 }

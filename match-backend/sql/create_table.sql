@@ -15,9 +15,12 @@ create table if not exists user
     userAccount  varchar(256)                           not null comment '账号',
     userPassword varchar(512)                           not null comment '密码',
     userName     varchar(256)                           null comment '用户昵称',
+    userGender   varchar(256)                           null comment '用户性别',
     userAvatar   varchar(1024)                          null comment '用户头像',
     userProfile  varchar(512)                           null comment '用户简介',
     tags         varchar(1024)                          null comment '标签列表',
+    userPhone    varchar(256)                           null comment '电话',
+    userEmail    varchar(256)                           null comment '邮箱',
     userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
     createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
@@ -44,8 +47,6 @@ create table if not exists tag
 
 create index idx_userId
     on my_match.tag (userId);
-
-
 
 
 -- 帖子表

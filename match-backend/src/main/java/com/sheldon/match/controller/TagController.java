@@ -173,7 +173,7 @@ public class TagController {
 //    }
 
     /**
-     * 获取查询次数最多的标签
+     * 获取所有标签列表
      *
      * @param request
      * @return
