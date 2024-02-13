@@ -308,6 +308,12 @@ public class UserController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 通过标签和个人信息查询用户包装类列表
+     * @param userQueryByTagRequest
+     * @param request
+     * @return
+     */
     @PostMapping("/list/tag/page/vo")
     public BaseResponse<List<UserVO>> listUserVOByTagAndPage(@RequestBody UserQueryByTagRequest userQueryByTagRequest,
                                                              HttpServletRequest request) {

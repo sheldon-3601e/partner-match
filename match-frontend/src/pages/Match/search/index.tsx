@@ -2,7 +2,6 @@ import { TAG_IS_PARENT } from '@/constants/TagConstants';
 import useStyles from '@/pages/Match/search/articles/style.style';
 import { listTagVoUsingPost } from '@/services/backend/tagController';
 import { listUserVoByTagAndPageUsingPost } from '@/services/backend/userController';
-import { LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { useLocation, useMatch } from '@umijs/max';
 import { Card, Col, Form, Input, List, Row, Select, Tag } from 'antd';
@@ -11,7 +10,7 @@ import type { FC } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import StandardFormRow from './components/StandardFormRow';
 import TagSelect from './components/TagSelect';
-import ArticleListContent from "@/pages/Match/search/components/ArticleListContent";
+import ArticleListContent from '@/pages/Match/search/components/ArticleListContent';
 
 const FormItem = Form.Item;
 
@@ -26,19 +25,6 @@ const Search: FC<SearchProps> = () => {
   const [form] = Form.useForm();
 
   const { styles } = useStyles();
-
-  // const { data, reload, loading, loadMore, loadingMore } = useRequest(
-  //   () => {
-  //     return queryFakeList({
-  //       count: pageSize,
-  //     });
-  //   },
-  //   {
-  //     loadMore: true,
-  //   },
-  // );
-  //
-  // const list = data?.list || [];
 
   const setOwner = () => {
     form.setFieldsValue({
@@ -68,38 +54,7 @@ const Search: FC<SearchProps> = () => {
       name: '姚明',
     },
   ];
-
-  const IconText: React.FC<{
-    type: string;
-    text: React.ReactNode;
-  }> = ({ type, text }) => {
-    switch (type) {
-      case 'star-o':
-        return (
-          <span>
-            <StarOutlined style={{ marginRight: 8 }} />
-            {text}
-          </span>
-        );
-      case 'like-o':
-        return (
-          <span>
-            <LikeOutlined style={{ marginRight: 8 }} />
-            {text}
-          </span>
-        );
-      case 'message':
-        return (
-          <span>
-            <MessageOutlined style={{ marginRight: 8 }} />
-            {text}
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
+  // 响应式大小
   const formItemLayout = {
     wrapperCol: {
       xs: { span: 24 },
@@ -107,20 +62,6 @@ const Search: FC<SearchProps> = () => {
       md: { span: 12 },
     },
   };
-
-  // const loadMoreDom = list.length > 0 && (
-  //   <div style={{ textAlign: 'center', marginTop: 16 }}>
-  //     <Button onClick={loadMore} style={{ paddingLeft: 48, paddingRight: 48 }}>
-  //       {loadingMore ? (
-  //         <span>
-  //           <LoadingOutlined /> 加载中...
-  //         </span>
-  //       ) : (
-  //         '加载更多'
-  //       )}
-  //     </Button>
-  //   </div>
-  // );
 
   const ownerOptions = useMemo<DefaultOptionType[]>(
     () =>

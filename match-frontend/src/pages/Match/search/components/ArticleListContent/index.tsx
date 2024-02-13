@@ -15,7 +15,6 @@ const ArticleListContent: React.FC<ArticleListContentProps> = ({userVo}) => {
       <div className={styles.description}>{userVo.userProfile}</div>
       <div className={styles.extra}>
         <Avatar src={userVo.userAvatar} size="small" />
-        {/*<a href={href}>{owner}</a> 发布在 <a href={href}>{href}</a>*/}
         <em>{dayjs(userVo.createTime).format('YYYY-MM-DD HH:mm')}</em>
       </div>
     </div>
