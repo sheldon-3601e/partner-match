@@ -31,7 +31,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 用户接口
@@ -311,12 +310,13 @@ public class UserController {
 
     /**
      * 通过标签和个人信息查询用户包装类列表
+     *
      * @param userQueryByTagRequest
      * @param request
      * @return
      */
     @PostMapping("/list/tag/page/vo")
-    public BaseResponse<List<UserVO>> listUserVOByTagAndPage(@RequestBody UserQueryByTagRequest userQueryByTagRequest,
+    public BaseResponse<Page<UserVO>> listUserVOByTagAndPage(@RequestBody UserQueryByTagRequest userQueryByTagRequest,
                                                              HttpServletRequest request) {
         if (userQueryByTagRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -334,13 +334,15 @@ public class UserController {
                 queryWrapper);
         List<User> userList = userPage.getRecords();
         List<String> tagNameList = userQueryByTagRequest.getTagNameList();
-        // 使用正则表达式，将集合中是数字的字符串删除
-        tagNameList.removeIf(s -> s.matches("^[0-9]*$"));
         if (!CollUtil.isEmpty(tagNameList)) {
+            // 使用正则表达式，将集合中是数字的字符串删除
+            tagNameList.removeIf(s -> s.matches("^[0-9]*$"));
             userList = userService.filtersUsersByTag(userList, tagNameList);
         }
 
-        List<UserVO> userVOList = userService.getUserVO(userList);
-        return ResultUtils.success(userVOList);
+        Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
+        List<UserVO> userVO = userService.getUserVO(userList);
+        userVOPage.setRecords(userVO);
+        return ResultUtils.success(userVOPage);
     }
 }

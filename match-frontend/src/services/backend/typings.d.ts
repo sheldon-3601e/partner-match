@@ -17,12 +17,6 @@ declare namespace API {
     message?: string;
   };
 
-  type BaseResponseListUserVO_ = {
-    code?: number;
-    data?: UserVO[];
-    message?: string;
-  };
-
   type BaseResponseLoginUserVO_ = {
     code?: number;
     data?: LoginUserVO;

@@ -102,7 +102,7 @@ export async function listUserVoByTagAndPageUsingPost(
   body: API.UserQueryByTagRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponseListUserVO_>('/api/user/list/tag/page/vo', {
+  return request<API.BaseResponsePageUserVO_>('/api/user/list/tag/page/vo', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

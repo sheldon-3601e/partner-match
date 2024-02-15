@@ -2,15 +2,14 @@ import { TAG_IS_PARENT } from '@/constants/TagConstants';
 import useStyles from '@/pages/Match/search/articles/style.style';
 import { listTagVoUsingPost } from '@/services/backend/tagController';
 import { listUserVoByTagAndPageUsingPost } from '@/services/backend/userController';
-import { PageContainer } from '@ant-design/pro-components';
+import { PageContainer, ProList } from '@ant-design/pro-components';
 import { useLocation, useMatch } from '@umijs/max';
-import { Card, Col, Form, Input, List, Row, Select, Tag } from 'antd';
+import { Button, Card, Col, Form, Input, Row, Select, Space, Tag } from 'antd';
 import { DefaultOptionType } from 'antd/es/select';
 import type { FC } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import StandardFormRow from './components/StandardFormRow';
 import TagSelect from './components/TagSelect';
-import ArticleListContent from '@/pages/Match/search/components/ArticleListContent';
 
 const FormItem = Form.Item;
 
@@ -72,6 +71,17 @@ const Search: FC<SearchProps> = () => {
     [owners],
   );
 
+  // 分页相关设置
+  // 初始化查询参数
+  const initSearchParams = {
+    pageSize: 10,
+    current: 1,
+    sortField: 'id',
+    sortOrder: 'desc',
+  };
+
+  const [searchParams, setSearchParams] = useState({ ...initSearchParams });
+  const [userListTotal, setUserListTotal] = useState<number>(0);
   // 标签列表
   const [tagList, setTagList] = useState<API.TagVO[]>([]);
   // 标签的父标签列表
@@ -82,7 +92,7 @@ const Search: FC<SearchProps> = () => {
   const [tagParentSelectedList, setTagParentSelectedList] = useState<(string | number)[]>([]);
 
   // 用户列表
-  const [userList, setUserList] = useState<API.UserVO[]>([])
+  const [userList, setUserList] = useState<API.UserVO[]>([]);
 
   const loadTagList = async () => {
     const res = await listTagVoUsingPost();
@@ -94,24 +104,46 @@ const Search: FC<SearchProps> = () => {
     }
   };
 
+  // 加载用户数据
+  const loadUserList = async () => {
+    const res = await listUserVoByTagAndPageUsingPost({
+      ...searchParams,
+    });
+    if (res.data) {
+      setUserList(res.data.records ?? []);
+      setUserListTotal(Number.parseInt(res.data.total ?? '0'));
+    }
+  };
+
+  // 分页
+  const handlePageChange = (page: number) => {
+    setSearchParams({
+      ...searchParams,
+      current: page,
+    });
+    loadUserList();
+  };
+
   // 搜索用户
   const handleFormSubmit = async (value: string) => {
     // 过滤掉数字类型的元素，保留字符串类型的元素
-    const tagNameList: string[] = tagParentSelectedList
-      .map((item) => String(item));
+    const tagNameList: string[] = tagParentSelectedList.map((item) => String(item));
     const res = await listUserVoByTagAndPageUsingPost({
       userInput: value,
       tagNameList,
+      ...searchParams,
     });
     if (res.data) {
-      setUserList(res.data);
+      setUserList(res.data.records ?? []);
+      // @ts-ignore
+      setUserListTotal(res.data.total ?? 0);
     }
   };
 
   // 初始数据
   useEffect(() => {
     loadTagList();
-    handleFormSubmit("")
+    loadUserList();
   }, []);
 
   // 监听用户选择的父标签，筛选中对应的子标签
@@ -221,33 +253,61 @@ const Search: FC<SearchProps> = () => {
           bordered={false}
           bodyStyle={{ padding: '8px 32px 32px 32px' }}
         >
-          <List<API.UserVO>
-            size="large"
-            rowKey="id"
+          <ProList<API.UserVO>
             itemLayout="vertical"
+            rowKey="id"
+            pagination={{
+              onChange: handlePageChange,
+              current: searchParams.current,
+              pageSize: searchParams.pageSize,
+              total: userListTotal,
+            }}
+            onChange={() => {
+              alert('1111');
+            }}
             dataSource={userList}
-            renderItem={(item) => (
-              <List.Item key={item.id} extra={<div className={styles.listItemExtra} />}>
-                <List.Item.Meta
-                  title={
-                    <a
-                      className={styles.listItemMetaTitle}
-                      href={'http://www.github.com/sheldon-3601e'}
-                    >
-                      {item.userName}
-                    </a>
-                  }
-                  description={
-                    <span>
-                      {JSON.parse(item.tags!).map((tag: string) => {
-                        return <Tag key={tag}>{tag}</Tag>;
-                      })}
-                    </span>
-                  }
-                />
-                <ArticleListContent userVo={item} />
-              </List.Item>
-            )}
+            metas={{
+              title: {
+                dataIndex: 'userName',
+              },
+              avatar: {
+                dataIndex: 'userAvatar',
+              },
+              description: {
+                dataIndex: 'tags',
+                render: (_, row) => {
+                  return (
+                    <Space size={0}>
+                      {row.tags?.map((tag) => (
+                        <Tag color="blue" key={tag}>
+                          {tag}
+                        </Tag>
+                      ))}
+                    </Space>
+                  );
+                },
+              },
+              actions: {
+                render: (_, row) => {
+                  return [<Button key={row.id}>联系</Button>];
+                },
+              },
+              extra: {
+                render: () => (
+                  <img
+                    width={272}
+                    alt="logo"
+                    src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+                  />
+                ),
+              },
+              content: {
+                dataIndex: 'userProfile',
+                render: (_, row) => {
+                  return <div>{row.userProfile}</div>;
+                },
+              },
+            }}
           />
         </Card>
       </>
