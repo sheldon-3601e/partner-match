@@ -4,6 +4,7 @@ import static com.sheldon.match.constant.UserConstant.USER_LOGIN_STATE;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -345,11 +346,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userRes;
     }
 
-
     @Override
     public List<String> getTags(User user) {
         Gson gson = new Gson();
         return gson.fromJson(user.getTags(), new TypeToken<List<String>>() {}.getType());
+    }
+
+    @Override
+    public List<UserVO> getRecommendUserList(UserQueryRequest userQueryRequest, HttpServletRequest request) {
+        // TODO 用户推荐算法优化
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        // id 小于等于 32
+        queryWrapper.le("id", 32);
+        List<User> users = userMapper.selectList(queryWrapper);
+        return this.getUserVO(users);
+    }
+
+    @Override
+    public List<UserVO> getRecommendUserList() {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        // id 小于等于 32
+        queryWrapper.le("id", 32);
+        List<User> users = userMapper.selectList(queryWrapper);
+        return this.getUserVO(users);
     }
 
 }

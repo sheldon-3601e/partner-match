@@ -24,6 +24,8 @@ import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +50,9 @@ public class UserController {
 
     @Resource
     private WxOpenConfig wxOpenConfig;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     // region 登录相关
 
@@ -327,6 +332,7 @@ public class UserController {
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         String userInput = userQueryByTagRequest.getUserInput();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        // TODO 这里我们需要在查询出符合条件的用户的基础上，再进行分页
         if (!StringUtils.isEmpty(userInput)) {
             queryWrapper.like("userName", userInput).or().like("userProfile", userInput);
         }
@@ -343,6 +349,39 @@ public class UserController {
         Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
         List<UserVO> userVO = userService.getUserVO(userList);
         userVOPage.setRecords(userVO);
+        return ResultUtils.success(userVOPage);
+    }
+
+    /**
+     * 分页获取推荐用户封装列表
+     *
+     * @param userQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/recommend/list/page/vo")
+    public BaseResponse<Page<UserVO>> listRecommendUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
+                                                                HttpServletRequest request) {
+        if (userQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 验证是否登录
+        userService.getLoginUser(request);
+        long current = userQueryRequest.getCurrent();
+        long size = userQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        // 如果存在缓存，则直接读取缓存
+        ValueOperations<String, List<UserVO>> opsForValue = redisTemplate.opsForValue();
+        String key = "match:user:recommend:list:userList";
+        List<UserVO> recommendUserList = opsForValue.get(key);
+        if (recommendUserList == null) {
+            // 如果没有缓存，则查询数据库，并存入缓存
+            recommendUserList = userService.getRecommendUserList(userQueryRequest, request);
+            opsForValue.set(key, recommendUserList);
+        }
+        Page<UserVO> userVOPage = new Page<>(current, size);
+        userVOPage.setRecords(recommendUserList);
         return ResultUtils.success(userVOPage);
     }
 }
