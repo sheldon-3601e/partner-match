@@ -2,6 +2,9 @@ package com.sheldon.match.job.cycle;
 
 import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,7 +21,11 @@ import java.util.concurrent.TimeUnit;
  * @Description 预热推荐用户列表
  */
 @Component
+@Slf4j
 public class ProRecommendUserList {
+
+    @Resource
+    private RedissonClient redissonClient;
 
     @Resource
     private RedisTemplate redisTemplate;
@@ -28,11 +35,34 @@ public class ProRecommendUserList {
 
     @Scheduled(cron = "0 0 0 1/1 * ? ")
     public void proRecommendUserList() {
-        // 1. 获取推荐用户
-        List<UserVO> recommendUserList = userService.getRecommendUserList();
-        // 3. 将推荐列表存入缓存
-        String key = "match:user:recommend:list:userList";
-        redisTemplate.opsForValue().set(key, recommendUserList, 24, TimeUnit.HOURS);
+        // 获取锁
+        RLock lock = redissonClient.getLock("match:user:recommend:list:lock");
+
+        long id = Thread.currentThread().getId();
+        try {
+            // 获取锁 参数：获取锁的最大等待时间(期间会重试)，锁自动释放时间，时间单位
+            boolean isLock = lock.tryLock(0, -1, TimeUnit.MILLISECONDS);
+            if (isLock) {
+                log.info(id + "get lock success");
+                // 1. 获取推荐用户
+                List<UserVO> recommendUserList = userService.getRecommendUserList();
+                // 3. 将推荐列表存入缓存
+                String key = "match:user:recommend:list:userList";
+                redisTemplate.opsForValue().set(key, recommendUserList, 24, TimeUnit.HOURS);
+            } else {
+                log.info(id + "get lock fail");
+            }
+        } catch (Exception e) {
+            log.error("get lock error", e);
+        } finally {
+            // 释放锁
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                log.info(id + "release lock");
+                lock.unlock();
+            }
+        }
+
+
     }
 
 }
