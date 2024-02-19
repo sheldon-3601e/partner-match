@@ -150,6 +150,21 @@ export async function userLogoutUsingPost(options?: { [key: string]: any }) {
   });
 }
 
+/** listRecommendUserVOByPage POST /api/user/recommend/list/page/vo */
+export async function listRecommendUserVoByPageUsingPost(
+  body: API.UserQueryRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponsePageUserVO_>('/api/user/recommend/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** userRegister POST /api/user/register */
 export async function userRegisterUsingPost(
   body: API.UserRegisterRequest,

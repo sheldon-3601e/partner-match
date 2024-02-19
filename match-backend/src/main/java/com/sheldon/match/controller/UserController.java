@@ -380,8 +380,14 @@ public class UserController {
             recommendUserList = userService.getRecommendUserList(userQueryRequest, request);
             opsForValue.set(key, recommendUserList);
         }
+        // 对 recommendUserList 进行分页处理
+        int fromIndex = (int) ((current - 1) * size);
+        int toIndex = Math.min((int) (current * size), recommendUserList.size());
+        List<UserVO> pageList = recommendUserList.subList(fromIndex, toIndex);
+
+        // 创建分页对象
         Page<UserVO> userVOPage = new Page<>(current, size);
-        userVOPage.setRecords(recommendUserList);
+        userVOPage.setRecords(pageList);
         return ResultUtils.success(userVOPage);
     }
 }

@@ -254,6 +254,7 @@ const Search: FC<SearchProps> = () => {
           bodyStyle={{ padding: '8px 32px 32px 32px' }}
         >
           <ProList<API.UserVO>
+            style={{padding: '16px'}}
             itemLayout="vertical"
             rowKey="id"
             pagination={{
