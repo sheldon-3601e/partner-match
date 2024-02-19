@@ -1,6 +1,5 @@
 package com.sheldon.match.job.cycle;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.UserService;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName ProRecommendUserList
@@ -32,7 +32,7 @@ public class ProRecommendUserList {
         List<UserVO> recommendUserList = userService.getRecommendUserList();
         // 3. 将推荐列表存入缓存
         String key = "match:user:recommend:list:userList";
-        redisTemplate.opsForValue().set(key, recommendUserList);
+        redisTemplate.opsForValue().set(key, recommendUserList, 24, TimeUnit.HOURS);
     }
 
 }
