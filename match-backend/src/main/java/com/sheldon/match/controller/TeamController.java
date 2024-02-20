@@ -1,8 +1,5 @@
 package com.sheldon.match.controller;
-import java.util.Date;
 
-import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sheldon.match.annotation.AuthCheck;
 import com.sheldon.match.common.BaseResponse;
@@ -13,7 +10,7 @@ import com.sheldon.match.constant.UserConstant;
 import com.sheldon.match.exception.BusinessException;
 import com.sheldon.match.exception.ThrowUtils;
 import com.sheldon.match.model.dto.team.TeamAddRequest;
-import com.sheldon.match.model.dto.user.UserQueryByTagRequest;
+import com.sheldon.match.model.dto.team.TeamUpdateRequest;
 import com.sheldon.match.model.dto.user.UserQueryRequest;
 import com.sheldon.match.model.dto.user.UserUpdateMyRequest;
 import com.sheldon.match.model.dto.user.UserUpdateRequest;
@@ -22,12 +19,8 @@ import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.TeamService;
 import com.sheldon.match.service.UserService;
-import com.sheldon.match.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -75,39 +68,40 @@ public class TeamController {
     }
 
     /**
-     * 删除用户
+     * 删除队伍
      *
      * @param deleteRequest
      * @param request
      * @return
      */
     @PostMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteTeam(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean b = userService.removeById(deleteRequest.getId());
+        // 只有管理员和创建者可以删除队伍
+        User loginUser = userService.getLoginUser(request);
+        boolean b = teamService.deleteTeam(deleteRequest, loginUser);
         return ResultUtils.success(b);
     }
 
     /**
-     * 更新用户
+     * 更新队伍
      *
-     * @param userUpdateRequest
+     * @param teamUpdateRequest
      * @param request
      * @return
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
+    public BaseResponse<Boolean> updateTeam(@RequestBody TeamUpdateRequest teamUpdateRequest,
                                             HttpServletRequest request) {
-        if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
+        if (teamUpdateRequest == null || teamUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateRequest, user);
-        boolean result = userService.updateById(user);
+        Team team = new Team();
+        BeanUtils.copyProperties(teamUpdateRequest, team);
+        User loginUser = userService.getLoginUser(request);
+        boolean result = teamService.updateTeam(team, loginUser);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
