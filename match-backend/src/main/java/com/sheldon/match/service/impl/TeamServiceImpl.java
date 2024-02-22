@@ -239,8 +239,13 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         Integer status = teamQueryRequest.getStatus();
         int current = teamQueryRequest.getCurrent();
         int pageSize = teamQueryRequest.getPageSize();
+        String sortField = teamQueryRequest.getSortField();
+        String sortOrder = teamQueryRequest.getSortOrder();
         // 组装查询条件
         QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortOrder)) {
+            queryWrapper.orderBy(true, "ascend".equals(sortOrder), sortField);
+        }
         if (id != null) {
             queryWrapper.eq("id", id);
         }
@@ -287,7 +292,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
             BeanUtils.copyProperties(team, teamUserVO);
             User user = userService.getById(teamUserVO.getUserId());
             UserVO userVO = userService.getUserVO(user);
-            teamUserVO.setCreateUse(userVO);
+            teamUserVO.setCreateUser(userVO);
             return teamUserVO;
         }).collect(Collectors.toList());
 

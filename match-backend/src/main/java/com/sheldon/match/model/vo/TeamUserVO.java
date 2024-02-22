@@ -56,7 +56,7 @@ public class TeamUserVO implements Serializable {
     /**
      * 创建用户
      */
-    private UserVO createUse;
+    private UserVO createUser;
 
     /**
      * 0 - 公开，1 - 私有，2 - 加密
