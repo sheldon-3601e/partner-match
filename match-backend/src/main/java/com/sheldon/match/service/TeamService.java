@@ -10,6 +10,8 @@ import com.sheldon.match.model.entity.Team;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.TeamUserVO;
 
+import java.util.List;
+
 /**
 * @author 26483
 * @description 针对表【team(队伍)】的数据库操作Service
@@ -87,4 +89,26 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     boolean dissolveTeam(DeleteRequest deleteRequest, User loginUser);
+
+    /**
+     * 查询用户加入的队伍列表
+     * @param loginUser
+     * @return
+     */
+    List<TeamUserVO> listJoinedTeam(User loginUser);
+
+    /**
+     * 查询队伍用户VO
+     * @param teams
+     * @return
+     */
+    List<TeamUserVO> getTeamUserVO(List<Team> teams);
+
+    /**
+     * 查询用户创建的队伍列表
+     * @param loginUser
+     * @return
+     */
+    List<TeamUserVO> listCreateTeam(User loginUser);
+
 }

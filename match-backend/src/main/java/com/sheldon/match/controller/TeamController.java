@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 队伍接口
@@ -113,7 +114,7 @@ public class TeamController {
     @PostMapping("/list/page/vo")
     @AuthCheck(mustLogin = true)
     public BaseResponse<Page<TeamUserVO>> listTeamUserVOByPage(@RequestBody TeamQueryRequest teamQueryRequest,
-                                                       HttpServletRequest request) {
+                                                               HttpServletRequest request) {
         if (teamQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -135,7 +136,7 @@ public class TeamController {
      */
     @PostMapping("/join")
     public BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest,
-                                                                         HttpServletRequest request) {
+                                          HttpServletRequest request) {
         if (teamJoinRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -171,7 +172,7 @@ public class TeamController {
      */
     @PostMapping("/dissolve")
     public BaseResponse<Boolean> dissolveTeam(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
-        if (deleteRequest == null ) {
+        if (deleteRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 只有管理员和创建者可以删除队伍
@@ -180,7 +181,33 @@ public class TeamController {
         return ResultUtils.success(b);
     }
 
+    /**
+     * 查询已加入的队伍
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/joined")
+    public BaseResponse<List<TeamUserVO>> listJoinedTeam(HttpServletRequest request) {
 
+        User loginUser = userService.getLoginUser(request);
+        List<TeamUserVO> joinedTeamList = teamService.listJoinedTeam(loginUser);
+        return ResultUtils.success(joinedTeamList);
+    }
+
+    /**
+     * 查询已创建的队伍
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/create")
+    public BaseResponse<List<TeamUserVO>> listCreateTeam(HttpServletRequest request) {
+
+        User loginUser = userService.getLoginUser(request);
+        List<TeamUserVO> joinedTeamList = teamService.listCreateTeam(loginUser);
+        return ResultUtils.success(joinedTeamList);
+    }
 
 
 }

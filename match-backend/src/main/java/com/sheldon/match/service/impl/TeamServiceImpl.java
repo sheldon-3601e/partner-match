@@ -22,6 +22,7 @@ import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.TeamService;
 import com.sheldon.match.service.UserService;
 import com.sheldon.match.service.UserTeamService;
+import java.util.Collections;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -286,15 +287,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
 
         // 取出队伍列表，根据创建者id取出创建者信息
         List<Team> teamList = teamPage.getRecords();
-        List<TeamUserVO> teamUserVOList = teamList.stream().map(team -> {
-            // 将队伍列表和创建者信息封装成TeamUserVO
-            TeamUserVO teamUserVO = new TeamUserVO();
-            BeanUtils.copyProperties(team, teamUserVO);
-            User user = userService.getById(teamUserVO.getUserId());
-            UserVO userVO = userService.getUserVO(user);
-            teamUserVO.setCreateUser(userVO);
-            return teamUserVO;
-        }).collect(Collectors.toList());
+        List<TeamUserVO> teamUserVOList = getTeamUserVO(teamList);
 
         // 封装成Page返回
         Page<TeamUserVO> teamUserVOPage = new Page<>();
@@ -450,8 +443,55 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         return true;
     }
 
+    @Override
+    public List<TeamUserVO> listJoinedTeam(User loginUser) {
+        Long userId = loginUser.getId();
+        // 查询已加入的队伍 id
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", userId);
+        List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+        // 根据队伍 id 查询队伍信息
+        List<Long> teamIds = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toList());
+        List<Team> teams = this.listByIds(teamIds);
+        // 再查询 队伍的创建者信息, 封装返回对象
+        return getTeamUserVO(teams);
+    }
+
+    @Override
+    public List<TeamUserVO> listCreateTeam(User loginUser) {
+        Long userId = loginUser.getId();
+        // 查询出创建的队伍
+        QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", userId);
+        List<Team> teamList = this.list(queryWrapper);
+        // 封装返回对象，将 userVO 封装
+        return teamList.stream().map(team -> {
+            TeamUserVO teamUserVO = new TeamUserVO();
+            BeanUtils.copyProperties(team, teamUserVO);
+            UserVO userVO = userService.getUserVO(loginUser);
+            teamUserVO.setCreateUser(userVO);
+            return teamUserVO;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TeamUserVO> getTeamUserVO(List<Team> teams) {
+        if (teams == null || teams.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return teams.stream().map(team -> {
+            TeamUserVO teamUserVO = new TeamUserVO();
+            BeanUtils.copyProperties(team, teamUserVO);
+            User user = userService.getById(team.getUserId());
+            UserVO userVO = userService.getUserVO(user);
+            teamUserVO.setCreateUser(userVO);
+            return teamUserVO;
+        }).collect(Collectors.toList());
+    }
+
     /**
      * 根据 Id 获取队伍信息
+     *
      * @param teamId
      * @return
      */
