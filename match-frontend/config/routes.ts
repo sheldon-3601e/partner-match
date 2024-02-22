@@ -15,7 +15,30 @@ export default [
         name: '搜索',
       },
       { icon: 'table', path: '/match/person', component: './Match/Person', name: '个人' },
-      { icon: 'table', path: '/match/team', component: './Match/Team', name: '队伍' },
+      {
+        icon: 'table',
+        path: '/match/team',
+        name: '队伍',
+        routes: [
+          {
+            icon: 'table',
+            path: '/match/team',
+            redirect: '/match/team/show'
+          },
+          {
+            icon: 'table',
+            path: '/match/team/show',
+            component: './Match/Team',
+            name: '展示队伍',
+          },
+          {
+            icon: 'table',
+            path: '/match/team/add',
+            component: './Match/Team/AddTeam',
+            name: '添加队伍',
+          },
+        ],
+      },
     ],
   },
   { path: '/account/settings', icon: 'smile', component: './Account/Settings', name: '个人设置' },

@@ -41,6 +41,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponsePageTeamUserVO_ = {
+    code?: number;
+    data?: PageTeamUserVO_;
+    message?: string;
+  };
+
   type BaseResponsePageUser_ = {
     code?: number;
     data?: PageUser_;
@@ -135,6 +141,19 @@ declare namespace API {
     orders?: OrderItem[];
     pages?: string;
     records?: PostVO[];
+    searchCount?: boolean;
+    size?: string;
+    total?: string;
+  };
+
+  type PageTeamUserVO_ = {
+    countId?: string;
+    current?: string;
+    maxLimit?: string;
+    optimizeCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: string;
+    records?: TeamUserVO[];
     searchCount?: boolean;
     size?: string;
     total?: string;
@@ -256,6 +275,63 @@ declare namespace API {
     isParent?: number;
     parentId?: string;
     tagName?: string;
+  };
+
+  type TeamAddRequest = {
+    description?: string;
+    expireTime?: string;
+    maxNum?: number;
+    password?: string;
+    status?: number;
+    teamName?: string;
+  };
+
+  type TeamJoinRequest = {
+    password?: string;
+    teamId?: string;
+  };
+
+  type TeamQueryRequest = {
+    createTime?: string;
+    current?: number;
+    description?: string;
+    expireTime?: string;
+    id?: string;
+    maxNum?: number;
+    pageSize?: number;
+    searchKey?: string;
+    sortField?: string;
+    sortOrder?: string;
+    status?: number;
+    teamName?: string;
+    userId?: string;
+  };
+
+  type TeamQuitRequest = {
+    teamId?: string;
+  };
+
+  type TeamUpdateRequest = {
+    description?: string;
+    expireTime?: string;
+    id?: string;
+    password?: string;
+    status?: number;
+    teamName?: string;
+  };
+
+  type TeamUserVO = {
+    createTime?: string;
+    createUser?: UserVO;
+    description?: string;
+    expireTime?: string;
+    hasNum?: number;
+    id?: string;
+    maxNum?: number;
+    status?: number;
+    teamName?: string;
+    userId?: string;
+    userList?: UserVO[];
   };
 
   type uploadFileUsingPOSTParams = {

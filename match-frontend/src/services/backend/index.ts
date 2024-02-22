@@ -7,6 +7,7 @@ import * as postController from './postController';
 import * as postFavourController from './postFavourController';
 import * as postThumbController from './postThumbController';
 import * as tagController from './tagController';
+import * as teamController from './teamController';
 import * as userController from './userController';
 export default {
   fileController,
@@ -14,5 +15,6 @@ export default {
   postFavourController,
   postThumbController,
   tagController,
+  teamController,
   userController,
 };
