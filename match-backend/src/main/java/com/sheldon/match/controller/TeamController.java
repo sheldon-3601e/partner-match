@@ -162,5 +162,25 @@ public class TeamController {
         return ResultUtils.success(result);
     }
 
+    /**
+     * 解散队伍
+     *
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/dissolve")
+    public BaseResponse<Boolean> dissolveTeam(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+        if (deleteRequest == null ) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 只有管理员和创建者可以删除队伍
+        User loginUser = userService.getLoginUser(request);
+        boolean b = teamService.dissolveTeam(deleteRequest, loginUser);
+        return ResultUtils.success(b);
+    }
+
+
+
 
 }

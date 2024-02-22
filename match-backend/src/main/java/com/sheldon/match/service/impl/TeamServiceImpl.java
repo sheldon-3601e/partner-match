@@ -218,6 +218,17 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
     }
 
     @Override
+    public void isAdminOrCreator(Team team, User loginUser) {
+        // 如果是管理员，直接返回true
+        if (!UserRoleEnum.ADMIN.getValue().equals(loginUser.getUserRole())) {
+            // 判断是否为创建者
+            if (!team.getUserId().equals(loginUser.getId())) {
+                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+            }
+        }
+    }
+
+    @Override
     public Page<TeamUserVO> listTeamUserVOByPage(TeamQueryRequest teamQueryRequest, User loginUser) {
         Long id = teamQueryRequest.getId();
         String searchKey = teamQueryRequest.getSearchKey();
@@ -290,6 +301,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean joinTeam(TeamJoinRequest teamJoinRequest, User loginUser) {
         // TODO 应对并发问题，加锁
         if (teamJoinRequest == null) {
@@ -297,13 +309,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         }
         Long userId = loginUser.getId();
         Long teamId = teamJoinRequest.getTeamId();
-        if (teamId == null || teamId <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        Team team = this.getById(teamId);
-        if (team == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
-        }
+        // 获取队伍信息
+        Team team = this.getTeamById(teamId);
+
         Date expireTime = team.getExpireTime();
         Integer status = team.getStatus();
         String password = team.getPassword();
@@ -359,6 +367,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser) {
 
         // 校验请求参数
@@ -368,10 +377,8 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         // 校验队伍是否存在
         Long teamId = teamQuitRequest.getTeamId();
         Long userId = loginUser.getId();
-        Team team = this.getById(teamId);
-        if (team == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
-        }
+        Team team = this.getTeamById(teamId);
+
         // 校验是否加入队伍
         QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("teamId", teamId);
@@ -385,6 +392,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         if (hasNum == 1) {
             boolean result = this.removeById(teamId);
             ThrowUtils.throwIf(!result, ErrorCode.SYSTEM_ERROR);
+            return true;
         } else {
             // 说明队伍中，至少有两个人
             Long creatorId = team.getUserId();
@@ -411,6 +419,46 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         boolean result = userTeamService.remove(queryWrapper);
         ThrowUtils.throwIf(!result, ErrorCode.SYSTEM_ERROR);
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean dissolveTeam(DeleteRequest deleteRequest, User loginUser) {
+        if (deleteRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Long userId = loginUser.getId();
+        Long teamId = deleteRequest.getId();
+        Team team = this.getTeamById(teamId);
+        // 判断是否为创建者
+        if (!team.getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "不是队伍创建者");
+        }
+        // 删除队伍
+        boolean result = this.removeById(teamId);
+        ThrowUtils.throwIf(!result, ErrorCode.SYSTEM_ERROR);
+        // 删除用户队伍关联信息
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("teamId", teamId);
+        result = userTeamService.remove(queryWrapper);
+        ThrowUtils.throwIf(!result, ErrorCode.SYSTEM_ERROR);
+        return true;
+    }
+
+    /**
+     * 根据 Id 获取队伍信息
+     * @param teamId
+     * @return
+     */
+    private Team getTeamById(Long teamId) {
+        if (teamId == null || teamId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Team team = this.getById(teamId);
+        if (team == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "队伍不存在");
+        }
+        return team;
     }
 
 }

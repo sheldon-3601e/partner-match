@@ -53,6 +53,8 @@ public interface TeamService extends IService<Team> {
      */
     boolean isAdminOrCreator(Long teamId, User loginUser);
 
+    void isAdminOrCreator(Team team, User loginUser);
+
     /**
      * 分页查询队伍用户VO
      *
@@ -77,4 +79,12 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
+
+    /**
+     * 解散队伍
+     * @param deleteRequest
+     * @param loginUser
+     * @return
+     */
+    boolean dissolveTeam(DeleteRequest deleteRequest, User loginUser);
 }
