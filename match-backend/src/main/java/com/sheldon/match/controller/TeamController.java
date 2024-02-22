@@ -10,12 +10,15 @@ import com.sheldon.match.constant.UserConstant;
 import com.sheldon.match.exception.BusinessException;
 import com.sheldon.match.exception.ThrowUtils;
 import com.sheldon.match.model.dto.team.TeamAddRequest;
+import com.sheldon.match.model.dto.team.TeamJoinRequest;
+import com.sheldon.match.model.dto.team.TeamQueryRequest;
 import com.sheldon.match.model.dto.team.TeamUpdateRequest;
 import com.sheldon.match.model.dto.user.UserQueryRequest;
 import com.sheldon.match.model.dto.user.UserUpdateMyRequest;
 import com.sheldon.match.model.dto.user.UserUpdateRequest;
 import com.sheldon.match.model.entity.Team;
 import com.sheldon.match.model.entity.User;
+import com.sheldon.match.model.vo.TeamUserVO;
 import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.TeamService;
 import com.sheldon.match.service.UserService;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.text.StyledEditorKit;
 import java.util.List;
 
 /**
@@ -107,12 +111,54 @@ public class TeamController {
     }
 
     /**
+     * 分页获取队伍封装列表
+     *
+     * @param teamQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/page/vo")
+    @AuthCheck(mustLogin = true)
+    public BaseResponse<Page<TeamUserVO>> listTeamUserVOByPage(@RequestBody TeamQueryRequest teamQueryRequest,
+                                                       HttpServletRequest request) {
+        if (teamQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        long size = teamQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        Page<TeamUserVO> teamUserVOPage = teamService.listTeamUserVOByPage(teamQueryRequest, loginUser);
+        return ResultUtils.success(teamUserVOPage);
+    }
+
+    /**
+     * 用户加入队伍
+     *
+     * @param teamJoinRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/join")
+    public BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest,
+                                                                         HttpServletRequest request) {
+        if (teamJoinRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        boolean result = teamService.joinTeam(teamJoinRequest, loginUser);
+        return ResultUtils.success(result);
+    }
+
+
+/*    *//**
      * 根据 id 获取用户（仅管理员）
      *
      * @param id
      * @param request
      * @return
-     */
+     *//*
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<User> getUserById(long id, HttpServletRequest request) {
@@ -124,13 +170,13 @@ public class TeamController {
         return ResultUtils.success(user);
     }
 
-    /**
+    *//**
      * 根据 id 获取包装类
      *
      * @param id
      * @param request
      * @return
-     */
+     *//*
     @GetMapping("/get/vo")
     public BaseResponse<UserVO> getUserVOById(long id, HttpServletRequest request) {
         BaseResponse<User> response = getUserById(id, request);
@@ -138,13 +184,13 @@ public class TeamController {
         return ResultUtils.success(userService.getUserVO(user));
     }
 
-    /**
+    *//**
      * 分页获取用户列表（仅管理员）
      *
      * @param userQueryRequest
      * @param request
      * @return
-     */
+     *//*
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
@@ -156,40 +202,15 @@ public class TeamController {
         return ResultUtils.success(userPage);
     }
 
-    /**
-     * 分页获取用户封装列表
-     *
-     * @param userQueryRequest
-     * @param request
-     * @return
-     */
-    @PostMapping("/list/page/vo")
-    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-                                                       HttpServletRequest request) {
-        if (userQueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        long current = userQueryRequest.getCurrent();
-        long size = userQueryRequest.getPageSize();
-        // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<User> userPage = userService.page(new Page<>(current, size),
-                userService.getQueryWrapper(userQueryRequest));
-        Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
-        List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
-        userVOPage.setRecords(userVO);
-        return ResultUtils.success(userVOPage);
-    }
-
     // endregion
 
-    /**
+    *//**
      * 更新个人信息
      *
      * @param userUpdateMyRequest
      * @param request
      * @return
-     */
+     *//*
     @PostMapping("/update/my")
     public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
                                               HttpServletRequest request) {
@@ -203,5 +224,5 @@ public class TeamController {
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
-    }
+    }*/
 }

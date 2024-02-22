@@ -22,5 +22,12 @@ public @interface AuthCheck {
      */
     String mustRole() default "";
 
+    /**
+     * 是否需要登录
+     *
+     * @return
+     */
+    boolean mustLogin() default true;
+
 }
 

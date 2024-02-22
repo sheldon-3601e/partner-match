@@ -15,6 +15,8 @@ import java.util.List;
 @Data
 public class UserVO implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * id
      */
@@ -65,5 +67,4 @@ public class UserVO implements Serializable {
      */
     private Date createTime;
 
-    private static final long serialVersionUID = 1L;
 }

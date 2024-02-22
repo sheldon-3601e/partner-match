@@ -1,23 +1,34 @@
 package com.sheldon.match.model.dto.team;
 
+import com.sheldon.match.common.PageRequest;
+import com.sheldon.match.model.vo.UserVO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 队伍修改请求
+ * 用户查询请求
  *
  * @author <a href="https://github.com/sheldon-3601e">sheldon</a>
  * @from <a href="https://github.com/sheldon-3601e">sheldon</a>
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class TeamUpdateRequest implements Serializable {
+public class TeamQueryRequest extends PageRequest implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * id
      */
     private Long id;
+
+    /**
+     * 查询关键字
+     */
+    private String searchKey;
 
     /**
      * 队伍名称
@@ -30,9 +41,20 @@ public class TeamUpdateRequest implements Serializable {
     private String description;
 
     /**
+     * 最大人数
+     */
+    private Integer maxNum;
+
+    /**
      * 过期时间
      */
     private Date expireTime;
+
+    /**
+     * 用户id
+     */
+    private Long userId;
+
 
     /**
      * 0 - 公开，1 - 私有，2 - 加密
@@ -40,9 +62,8 @@ public class TeamUpdateRequest implements Serializable {
     private Integer status;
 
     /**
-     * 密码
+     * 创建时间
      */
-    private String password;
+    private Date createTime;
 
-    private static final long serialVersionUID = 1L;
 }
