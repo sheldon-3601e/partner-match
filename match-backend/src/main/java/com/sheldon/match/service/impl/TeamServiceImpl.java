@@ -74,7 +74,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         }
         // 过期时间要大于当前时间
         Date expireTime = team.getExpireTime();
-        if (expireTime == null || expireTime.before(new Date())) {
+        if (expireTime != null && expireTime.before(new Date())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 队伍状态只能是0, 1, 2
