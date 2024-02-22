@@ -9,6 +9,7 @@
             <result property="teamName" column="teamName" jdbcType="VARCHAR"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>
             <result property="maxNum" column="maxNum" jdbcType="INTEGER"/>
+            <result property="hasNum" column="hasNum" jdbcType="INTEGER"/>
             <result property="expireTime" column="expireTime" jdbcType="TIMESTAMP"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>
             <result property="status" column="status" jdbcType="INTEGER"/>
@@ -20,8 +21,8 @@
 
     <sql id="Base_Column_List">
         id,teamName,description,
-        maxNum,expireTime,userId,
-        status,password,createTime,
-        updateTime,isDelete
+        maxNum,hasNum,expireTime,
+        userId,status,password,
+        createTime,updateTime,isDelete
     </sql>
 </mapper>

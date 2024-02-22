@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.sheldon.match.common.DeleteRequest;
 import com.sheldon.match.model.dto.team.TeamJoinRequest;
 import com.sheldon.match.model.dto.team.TeamQueryRequest;
+import com.sheldon.match.model.dto.team.TeamQuitRequest;
 import com.sheldon.match.model.entity.Team;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.TeamUserVO;
@@ -68,4 +69,12 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     boolean joinTeam(TeamJoinRequest teamJoinRequest, User loginUser);
+
+    /**
+     * 用户退出队伍
+     * @param teamQuitRequest
+     * @param loginUser
+     * @return
+     */
+    boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
 }

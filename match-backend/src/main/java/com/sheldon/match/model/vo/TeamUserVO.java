@@ -1,9 +1,5 @@
 package com.sheldon.match.model.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -41,6 +37,11 @@ public class TeamUserVO implements Serializable {
      * 最大人数
      */
     private Integer maxNum;
+
+    /**
+     * 当前人数
+     */
+    private Integer hasNum;
 
     /**
      * 过期时间
