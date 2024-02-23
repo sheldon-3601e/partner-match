@@ -390,7 +390,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         if (hasNum == 1) {
             boolean result = this.removeById(teamId);
             ThrowUtils.throwIf(!result, ErrorCode.SYSTEM_ERROR);
-            return true;
         } else {
             // 说明队伍中，至少有两个人
             Long creatorId = team.getUserId();
@@ -458,7 +457,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
     }
 
     @Override
-    public List<TeamUserVO> listCreateTeam(User loginUser) {
+    public List<TeamUserVO> listCreatedTeam(User loginUser) {
         Long userId = loginUser.getId();
         // 查询出创建的队伍
         QueryWrapper<Team> queryWrapper = new QueryWrapper<>();

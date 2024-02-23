@@ -109,6 +109,6 @@ public interface TeamService extends IService<Team> {
      * @param loginUser
      * @return
      */
-    List<TeamUserVO> listCreateTeam(User loginUser);
+    List<TeamUserVO> listCreatedTeam(User loginUser);
 
 }

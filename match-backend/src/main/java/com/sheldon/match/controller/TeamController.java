@@ -202,10 +202,10 @@ public class TeamController {
      * @return
      */
     @PostMapping("/list/create")
-    public BaseResponse<List<TeamUserVO>> listCreateTeam(HttpServletRequest request) {
+    public BaseResponse<List<TeamUserVO>> listCreatedTeam(HttpServletRequest request) {
 
         User loginUser = userService.getLoginUser(request);
-        List<TeamUserVO> joinedTeamList = teamService.listCreateTeam(loginUser);
+        List<TeamUserVO> joinedTeamList = teamService.listCreatedTeam(loginUser);
         return ResultUtils.success(joinedTeamList);
     }
 
