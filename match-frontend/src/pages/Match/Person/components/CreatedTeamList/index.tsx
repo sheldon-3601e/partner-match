@@ -3,20 +3,21 @@ import { listCreatedTeamUsingPost, updateTeamUsingPost } from '@/services/backen
 import { DownloadOutlined, EditOutlined, ShareAltOutlined } from '@ant-design/icons';
 import { ProCard } from '@ant-design/pro-components';
 import { Avatar, Card, List, message, Tooltip } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import useStyles from './index.style';
 
 const CreatedTeamList: React.FC = () => {
   const { styles: stylesApplications } = useStyles();
 
   const [createdTeamList, setCreatedTeamList] = useState<API.TeamUserVO[]>([]);
-  const [curTeamUserVO, setCurTeamUserVO] = useState<API.TeamUserVO>({});
   const [modelVisible, setModelVisible] = useState<boolean>(false);
+
+  const currTeamUserVO = useRef<API.TeamUserVO>({});
+
   // 获取tab列表数据
   const loadData = async () => {
     const result = await listCreatedTeamUsingPost();
     if (result.data) {
-      console.log(result.data);
       setCreatedTeamList(result.data);
     } else {
       message.error('获取数据失败，请你重试！');
@@ -24,11 +25,11 @@ const CreatedTeamList: React.FC = () => {
   };
 
   const editTeam = async (value: API.TeamUserVO) => {
-    console.log('page', value);
     const result = await updateTeamUsingPost({
       ...value,
     });
     if (result.data) {
+      loadData();
       message.success('修改信息成功');
     } else {
       message.error('修改信息失败，请您重试！');
@@ -83,9 +84,9 @@ const CreatedTeamList: React.FC = () => {
                 </Tooltip>,
                 <Tooltip title="编辑" key="edit">
                   <EditOutlined
-                    onClick={() => {
+                    onClick={async () => {
+                      currTeamUserVO.current = item;
                       setModelVisible(true);
-                      setCurTeamUserVO(item);
                     }}
                   />
                 </Tooltip>,
@@ -106,7 +107,7 @@ const CreatedTeamList: React.FC = () => {
         )}
       />
       <EditTeam
-        teamUserVO={curTeamUserVO}
+        teamUserVO={currTeamUserVO.current}
         onFinish={editTeam}
         visible={modelVisible}
         setVisible={setModelVisible}

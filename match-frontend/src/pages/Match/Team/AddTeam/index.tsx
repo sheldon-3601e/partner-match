@@ -13,7 +13,7 @@ import '@umijs/max';
 import {message} from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
-import MargBotton16 from '@/components/margBotton16';
+import MargBottom16 from '@/components/margBottom16';
 import { useNavigate } from "react-router-dom";
 
 const CreateModal: React.FC = () => {
@@ -59,7 +59,7 @@ const CreateModal: React.FC = () => {
               rules={[{ required: true, message: '这是必填项' }]}
             />
           </ProForm.Group>
-          <MargBotton16 />
+          <MargBottom16 />
           <ProFormTextArea
             name="description"
             label="队伍描述"
@@ -67,7 +67,7 @@ const CreateModal: React.FC = () => {
             width={'lg'}
             rules={[{ required: true, message: '这是必填项' }]}
           />
-          <MargBotton16 />
+          <MargBottom16 />
           <ProForm.Group>
             <ProFormDigit
               label="最大人数"
@@ -97,7 +97,7 @@ const CreateModal: React.FC = () => {
                 },
               ]}
           />
-          <MargBotton16 />
+          <MargBottom16 />
           <ProForm.Group>
             <ProFormSelect
               name="status"

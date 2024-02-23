@@ -321,6 +321,7 @@ declare namespace API {
     description?: string;
     expireTime?: string;
     id?: string;
+    maxNum?: number;
     password?: string;
     status?: number;
     teamName?: string;

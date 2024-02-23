@@ -1,4 +1,4 @@
-import MargBotton16 from '@/components/margBotton16';
+import MargBottom16 from '@/components/margBottom16';
 import { TeamStatusEnum } from '@/constants/TeamStatus';
 import {
   joinTeamUsingPost,
@@ -183,7 +183,7 @@ const MatchTeam: React.FC = () => {
       />
 
       <Modal title="输入队伍密码" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        <MargBotton16 />
+        <MargBottom16 />
         <Input
           placeholder="请输入密码"
           allowClear

@@ -1,4 +1,4 @@
-import MargBotton16 from '@/components/margBotton16';
+import MargBottom16 from '@/components/margBottom16';
 import {
   ModalForm,
   ProForm,
@@ -21,14 +21,19 @@ interface EditTeamProps {
 }
 
 const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setVisible }) => {
-  const formRef = useRef<ProFormInstance>();
-  console.log('model:',teamUserVO)
+  const restFormRef = useRef<ProFormInstance>();
+
+  console.log(teamUserVO)
+
   return (
     <ModalForm<API.TeamUserVO>
       title="修改队伍信息"
-      formRef={formRef}
+      formRef={restFormRef}
       open={visible}
-      onOpenChange={setVisible}
+      onOpenChange={(value) =>
+      {
+        setVisible(value)
+      }}
       initialValues={teamUserVO}
       submitter={{
         render: (props, defaultDoms) => {
@@ -37,7 +42,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setV
             <Button
               key="extra-reset"
               onClick={() => {
-                props.reset();
+                restFormRef.current?.resetFields();
               }}
             >
               重置
@@ -46,10 +51,9 @@ const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setV
         },
       }}
       onFinish={async (values) => {
-        console.log(values);
         onFinish(values);
         message.success('提交成功');
-        return true;
+        return true
       }}
     >
       <ProFormField
@@ -64,7 +68,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setV
           rules={[{ required: true, message: '这是必填项' }]}
         />
       </ProForm.Group>
-      <MargBotton16 />
+      <MargBottom16 />
       <ProFormTextArea
         name="description"
         label="队伍描述"
@@ -72,7 +76,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setV
         width={'lg'}
         rules={[{ required: true, message: '这是必填项' }]}
       />
-      <MargBotton16 />
+      <MargBottom16 />
       <ProForm.Group>
         <ProFormDigit
           label="最大人数"
@@ -95,8 +99,8 @@ const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setV
           {
             validator: (_, value) => {
               console.log(value);
-              console.log(dayjs(new Date()).add(1).toDate())
-              return value > dayjs(new Date()).add(1)
+              console.log(dayjs().toDate())
+              return value && dayjs(value).isAfter(dayjs())
                 ? Promise.resolve()
                 : Promise.reject(new Error('过期时间应当大于当前时间'));
             },
@@ -104,7 +108,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setV
           },
         ]}
       />
-      <MargBotton16 />
+      <MargBottom16 />
       <ProForm.Group>
         <ProFormSelect
           name="status"

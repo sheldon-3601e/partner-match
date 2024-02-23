@@ -1,4 +1,4 @@
-import MarginBottom16 from '@/components/margBotton16';
+import MarginBottom16 from '@/components/margBottom16';
 import { listRecommendUserVoByPageUsingPost } from '@/services/backend/userController';
 import { RedoOutlined } from '@ant-design/icons';
 import { PageContainer, ProCard } from '@ant-design/pro-components';
