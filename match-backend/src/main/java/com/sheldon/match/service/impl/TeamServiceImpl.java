@@ -371,7 +371,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 校验队伍是否存在
-        Long teamId = teamQuitRequest.getTeamId();
+        Long teamId = teamQuitRequest.getId();
         Long userId = loginUser.getId();
         Team team = this.getTeamById(teamId);
 

@@ -20,7 +20,7 @@ public class UserQueryByTagRequest extends PageRequest implements Serializable {
     /**
      * 用户输入搜索内容
      */
-    private String userInput;
+    private String searchKey;
 
     /**
      * 标签列表

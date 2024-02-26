@@ -227,6 +227,7 @@ declare namespace API {
     postQueryRequest?: PostQueryRequest;
     sortField?: string;
     sortOrder?: string;
+    total?: number;
     userId?: string;
   };
 
@@ -243,6 +244,7 @@ declare namespace API {
     sortOrder?: string;
     tags?: string[];
     title?: string;
+    total?: number;
     userId?: string;
   };
 
@@ -310,6 +312,7 @@ declare namespace API {
     sortOrder?: string;
     status?: number;
     teamName?: string;
+    total?: number;
     userId?: string;
   };
 
@@ -385,15 +388,17 @@ declare namespace API {
     pageSize?: number;
     sortField?: string;
     sortOrder?: string;
+    total?: number;
   };
 
   type UserQueryByTagRequest = {
     current?: number;
     pageSize?: number;
+    searchKey?: string;
     sortField?: string;
     sortOrder?: string;
     tagNameList?: string[];
-    userInput?: string;
+    total?: number;
   };
 
   type UserQueryRequest = {
@@ -403,6 +408,7 @@ declare namespace API {
     pageSize?: number;
     sortField?: string;
     sortOrder?: string;
+    total?: number;
     unionId?: string;
     userName?: string;
     userProfile?: string;

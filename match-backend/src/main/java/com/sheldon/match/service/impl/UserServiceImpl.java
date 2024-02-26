@@ -2,6 +2,7 @@ package com.sheldon.match.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -10,6 +11,7 @@ import com.sheldon.match.constant.CommonConstant;
 import com.sheldon.match.exception.BusinessException;
 import com.sheldon.match.mapper.UserMapper;
 import com.sheldon.match.model.dto.user.UserMatchQueryRequest;
+import com.sheldon.match.model.dto.user.UserQueryByTagRequest;
 import com.sheldon.match.model.dto.user.UserQueryRequest;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.enums.UserRoleEnum;
@@ -20,6 +22,7 @@ import com.sheldon.match.utils.AlgorithmUtils;
 import com.sheldon.match.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.BeanUtils;
@@ -433,6 +436,51 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         });
 
         return resultUserVOList;
+    }
+
+    /**
+     * JSON_CONTAINS(tags, JSON_ARRAY(...))：这是一个 MySQL 的 JSON 函数，用于判断一个 JSON 数组中是否包含某个值。<p>
+     * 在这里，我们使用它来判断 tags 字段中是否包含传入的标签列表中的任何一个标签。
+     * <p>
+     * normalizedTagNames.stream().map(tag -> "'" + tag + "'").collect(Collectors.joining(", "))：<p>
+     * 这段代码用于将标签列表中的每个标签都用单引号括起来，并使用逗号连接成一个字符串。例如，如果标签列表是 ["tag1", "tag2", "tag3"]，则这段代码将生成 'tag1', 'tag2', 'tag3'。
+     * <p>
+     * 综合起来，这段代码的作用是构建一个 SQL 条件，用于判断 tags 字段是否包含传入的标签列表中的任何一个标签。<p>
+     * 最终生成的 SQL 片段类似于 JSON_CONTAINS(tags, JSON_ARRAY('tag1', 'tag2', 'tag3'))。
+     * <p>
+     * 这个 SQL 条件将被添加到 QueryWrapper 中，作为查询条件的一部分，在执行查询时会被转换为相应的 SQL 语句，从而实现对标签字段的过滤。<p>
+     * <p>
+     * 总之，这段代码的作用是在 MyBatis-Plus 的查询中添加一个自定义的 SQL 条件，用于对标签字段进行过滤，以满足复杂的查询需求。<p>
+     * @param userQueryByTagRequest
+     * @return
+     */
+    @Override
+    public Page<UserVO> listUserVOByTagAndPage(UserQueryByTagRequest userQueryByTagRequest) {
+
+        int current = userQueryByTagRequest.getCurrent();
+        int size = userQueryByTagRequest.getPageSize();
+        String searchKey = userQueryByTagRequest.getSearchKey();
+        List<String> tagNameList = userQueryByTagRequest.getTagNameList();
+
+        // 构建查询条件
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.isNotBlank(searchKey)) {
+            queryWrapper.and(qw -> qw.like("userName", searchKey).or().like("userProfile", searchKey));
+        }
+        if (!CollectionUtils.isEmpty(tagNameList)) {
+            queryWrapper.apply("JSON_CONTAINS(tags, JSON_ARRAY(" + tagNameList.stream().map(tag -> "'" + tag + "'").collect(Collectors.joining(", ")) + "))");
+        }
+
+        Page<User> userPage = this.page(new Page<>(current, size),
+                queryWrapper);
+
+        List<User> userList = userPage.getRecords();
+
+        Page<UserVO> userVOPage = new Page<>(current, size, 100);
+        List<UserVO> userVO = this.getUserVO(userList);
+        userVOPage.setRecords(userVO);
+
+        return userVOPage;
     }
 
 }

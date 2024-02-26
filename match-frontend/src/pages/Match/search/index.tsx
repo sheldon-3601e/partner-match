@@ -3,35 +3,28 @@ import { listTagVoUsingPost } from '@/services/backend/tagController';
 import { listUserVoByTagAndPageUsingPost } from '@/services/backend/userController';
 import { PageContainer, ProList } from '@ant-design/pro-components';
 import { useLocation, useMatch } from '@umijs/max';
-import { Button, Card, Form, Input, Space, Tag } from 'antd';
+import { Button, Card, Form, Input, message, Space, Tag } from 'antd';
 import type { FC } from 'react';
-import React, { useEffect, useState } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import StandardFormRow from './components/StandardFormRow';
 import TagSelect from './components/TagSelect';
 
 const FormItem = Form.Item;
 
-type SearchProps = {
-  children?: React.ReactNode;
+// 初始化查询参数
+const initPageParams = {
+  pageSize: 10,
+  current: 1,
+  sortField: 'id',
+  sortOrder: 'desc',
 };
 
-const Search: FC<SearchProps> = () => {
+const Search: FC = () => {
   const location = useLocation();
   useMatch(location.pathname);
 
   const [form] = Form.useForm();
 
-  // 分页相关设置
-  // 初始化查询参数
-  const initSearchParams = {
-    pageSize: 10,
-    current: 1,
-    sortField: 'id',
-    sortOrder: 'desc',
-  };
-
-  const [searchParams, setSearchParams] = useState({ ...initSearchParams });
-  const [userListTotal, setUserListTotal] = useState<number>(0);
   // 标签列表
   const [tagList, setTagList] = useState<API.TagVO[]>([]);
   // 标签的父标签列表
@@ -44,50 +37,64 @@ const Search: FC<SearchProps> = () => {
   // 用户列表
   const [userList, setUserList] = useState<API.UserVO[]>([]);
 
+  // 查询相关参数
+  const [pageParams, setPageParams] = useState({ ...initPageParams });
+  const [searchKey, setSearchKey] = useState('');
+  const [resultTagList, setResultTagList] = useState<string[]>([]);
+
+  const total = useRef();
+
+  /**'
+   * 加载用户数据
+   */
+  const loadUserList = async () => {
+    const result = await listUserVoByTagAndPageUsingPost({
+      ...pageParams,
+      searchKey,
+      tagNameList: resultTagList,
+    });
+    if (result.data) {
+      console.log('userList:', result.data);
+      setUserList(result.data.records ?? []);
+      total.current = result.data.total ?? 0
+    }
+  };
+
+  /**
+   * 加载标签数据
+   */
   const loadTagList = async () => {
-    const res = await listTagVoUsingPost();
-    if (res.data) {
-      setTagList(res.data);
-      const parentList = res.data.filter((tag) => tag.isParent === TAG_IS_PARENT);
-      // console.log(parentList)
+    const result = await listTagVoUsingPost();
+    if (result.data) {
+      console.log('tagList:', result.data);
+      setTagList(result.data);
+      const parentList = result.data.filter((tag) => tag.isParent === TAG_IS_PARENT);
+      console.log('parentList:', parentList);
       setTagParentList(parentList);
     }
   };
 
-  // 加载用户数据
-  const loadUserList = async () => {
-    const res = await listUserVoByTagAndPageUsingPost({
-      ...searchParams,
-    });
-    if (res.data) {
-      setUserList(res.data.records ?? []);
-      setUserListTotal(Number.parseInt(res.data.total ?? '0'));
-    }
-  };
-
-  // 分页
+  /**
+   * 分页查询
+   * @param page
+   */
   const handlePageChange = (page: number) => {
-    setSearchParams({
-      ...searchParams,
+    console.log(page);
+    setPageParams({
+      ...pageParams,
       current: page,
     });
     loadUserList();
   };
 
-  // 搜索用户
+  /**
+   * 搜索用户
+   * @param value
+   */
   const handleFormSubmit = async (value: string) => {
-    // 过滤掉数字类型的元素，保留字符串类型的元素
-    const tagNameList: string[] = tagParentSelectedList.map((item) => String(item));
-    const res = await listUserVoByTagAndPageUsingPost({
-      userInput: value,
-      tagNameList,
-      ...searchParams,
-    });
-    if (res.data) {
-      setUserList(res.data.records ?? []);
-      // @ts-ignore
-      setUserListTotal(res.data.total ?? 0);
-    }
+    setSearchKey(value);
+    console.log('handleFormSubmit');
+    loadUserList();
   };
 
   // 初始数据
@@ -98,11 +105,11 @@ const Search: FC<SearchProps> = () => {
 
   // 监听用户选择的父标签，筛选中对应的子标签
   useEffect(() => {
-    // console.log(tagParentSelectedList);
+    console.log('tagParentSelectedList:', tagParentSelectedList);
     const tagCurrent = tagList.filter((tag) =>
       tagParentSelectedList.includes(String(tag.parentId)),
     );
-    // console.log(tagCurrent);
+    console.log(tagCurrent);
     setTagCurrentList(tagCurrent);
   }, [tagParentSelectedList]);
 
@@ -121,16 +128,19 @@ const Search: FC<SearchProps> = () => {
       }
     >
       <>
+        <Button
+          onClick={() => {
+            console.log(resultTagList);
+          }}
+        >
+          测试
+        </Button>
+      </>
+      <>
         <Card bordered={false}>
-          <Form
-            layout="inline"
-            form={form}
-            initialValues={{
-              owner: ['wjh', 'zxx'],
-            }}
-          >
+          <Form layout="inline" form={form}>
             <StandardFormRow title="标签类别" block style={{ paddingBottom: 11 }}>
-              <FormItem name="category">
+              <FormItem name="parentTagList">
                 <TagSelect expandable onChange={(value) => setTagParentSelectedList(value)}>
                   {tagParentList.map((tag) => (
                     <TagSelect.Option value={tag.id!} key={tag.id}>
@@ -142,7 +152,7 @@ const Search: FC<SearchProps> = () => {
             </StandardFormRow>
             <StandardFormRow title="标签选择" block style={{ paddingBottom: 11 }}>
               <FormItem name="category">
-                <TagSelect expandable onChange={(value) => setTagParentSelectedList(value)}>
+                <TagSelect expandable onChange={(value) => setResultTagList(value)}>
                   {tagCurrentList.map((tag) => (
                     <TagSelect.Option value={tag.tagName!} key={tag.id}>
                       {tag.tagName}
@@ -159,19 +169,15 @@ const Search: FC<SearchProps> = () => {
           bodyStyle={{ padding: '8px 32px 32px 32px' }}
         >
           <ProList<API.UserVO>
-            style={{padding: '16px'}}
+            style={{ padding: '16px' }}
             itemLayout="vertical"
             rowKey="id"
+            dataSource={userList}
             pagination={{
               onChange: handlePageChange,
-              current: searchParams.current,
-              pageSize: searchParams.pageSize,
-              total: userListTotal,
+              current: pageParams.current,
+              total: total
             }}
-            onChange={() => {
-              alert('1111');
-            }}
-            dataSource={userList}
             metas={{
               title: {
                 dataIndex: 'userName',
@@ -195,17 +201,17 @@ const Search: FC<SearchProps> = () => {
               },
               actions: {
                 render: (_, row) => {
-                  return [<Button key={row.id}>联系</Button>];
+                  return [
+                    <Button
+                      key={row.id}
+                      onClick={() => {
+                        message.warning('该功能正在开发，敬请期待！');
+                      }}
+                    >
+                      联系
+                    </Button>,
+                  ];
                 },
-              },
-              extra: {
-                render: () => (
-                  <img
-                    width={272}
-                    alt="logo"
-                    src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
-                  />
-                ),
               },
               content: {
                 dataIndex: 'userProfile',

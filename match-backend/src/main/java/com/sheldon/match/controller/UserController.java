@@ -326,29 +326,11 @@ public class UserController {
         if (userQueryByTagRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        long current = userQueryByTagRequest.getCurrent();
         long size = userQueryByTagRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        String userInput = userQueryByTagRequest.getUserInput();
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        // TODO 这里我们需要在查询出符合条件的用户的基础上，再进行分页
-        if (!StringUtils.isEmpty(userInput)) {
-            queryWrapper.like("userName", userInput).or().like("userProfile", userInput);
-        }
-        Page<User> userPage = userService.page(new Page<>(current, size),
-                queryWrapper);
-        List<User> userList = userPage.getRecords();
-        List<String> tagNameList = userQueryByTagRequest.getTagNameList();
-        if (!CollUtil.isEmpty(tagNameList)) {
-            // 使用正则表达式，将集合中是数字的字符串删除
-            tagNameList.removeIf(s -> s.matches("^[0-9]*$"));
-            userList = userService.filtersUsersByTag(userList, tagNameList);
-        }
+        Page<UserVO> userVOPage = userService.listUserVOByTagAndPage(userQueryByTagRequest);
 
-        Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
-        List<UserVO> userVO = userService.getUserVO(userList);
-        userVOPage.setRecords(userVO);
         return ResultUtils.success(userVOPage);
     }
 

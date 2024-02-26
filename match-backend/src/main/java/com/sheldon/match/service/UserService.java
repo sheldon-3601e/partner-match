@@ -1,8 +1,10 @@
 package com.sheldon.match.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sheldon.match.model.dto.user.UserMatchQueryRequest;
+import com.sheldon.match.model.dto.user.UserQueryByTagRequest;
 import com.sheldon.match.model.dto.user.UserQueryRequest;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.LoginUserVO;
@@ -166,4 +168,11 @@ public interface UserService extends IService<User> {
      * @return
      */
     List<UserVO> listMatchUSerVO(UserMatchQueryRequest userMatchQueryRequest, User loginUser);
+
+    /**
+     * 根据标签和关键字查询用户
+     * @param userQueryByTagRequest
+     * @return
+     */
+    Page<UserVO> listUserVOByTagAndPage(UserQueryByTagRequest userQueryByTagRequest);
 }
