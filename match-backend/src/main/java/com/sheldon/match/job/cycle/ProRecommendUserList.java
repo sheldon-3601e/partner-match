@@ -1,5 +1,7 @@
 package com.sheldon.match.job.cycle;
 
+import com.sheldon.match.model.dto.user.UserMatchQueryRequest;
+import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +47,16 @@ public class ProRecommendUserList {
             if (isLock) {
                 log.info(id + "get lock success");
                 // 1. 获取推荐用户
-                List<UserVO> recommendUserList = userService.getRecommendUserList();
-                // 3. 将推荐列表存入缓存
-                String key = "match:user:recommend:list:userList";
-                redisTemplate.opsForValue().set(key, recommendUserList, 24, TimeUnit.HOURS);
+                UserMatchQueryRequest userMatchQueryRequest = new UserMatchQueryRequest();
+                userMatchQueryRequest.setMatchNum(32);
+                User user = userService.getById(1L);
+                List<UserVO> matchUserVOList = userService.listMatchUSerVO(userMatchQueryRequest, user);
+                String key = "match:user:match:list:" + user.getId() ;
+                redisTemplate.opsForValue().set(key, matchUserVOList, 24, TimeUnit.HOURS);
+                user = userService.getById(2L);
+                matchUserVOList = userService.listMatchUSerVO(userMatchQueryRequest, user);
+                key = "match:user:match:list:" + user.getId() ;
+                redisTemplate.opsForValue().set(key, matchUserVOList, 24, TimeUnit.HOURS);
             } else {
                 log.info(id + "get lock fail");
             }
