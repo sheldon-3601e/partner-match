@@ -353,37 +353,38 @@ public class UserController {
     }
 
     /**
-     * 分页获取推荐用户封装列表
+     * 查询匹配的用户
      *
-     * @param userQueryRequest
      * @param request
      * @return
      */
-    @PostMapping("/recommend/list/page/vo")
-    public BaseResponse<Page<UserVO>> listRecommendUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-                                                                HttpServletRequest request) {
-        if (userQueryRequest == null) {
+    @PostMapping("/list/match/page/vo")
+    public BaseResponse<Page<UserVO>> listMatchUSerVO(@RequestBody UserMatchQueryRequest userMatchQueryRequest, HttpServletRequest request) {
+
+        if (userMatchQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+
         // 验证是否登录
-        userService.getLoginUser(request);
-        long current = userQueryRequest.getCurrent();
-        long size = userQueryRequest.getPageSize();
+        User loginUser = userService.getLoginUser(request);
+        long current = userMatchQueryRequest.getCurrent();
+        long size = userMatchQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+
         // 如果存在缓存，则直接读取缓存
         ValueOperations<String, List<UserVO>> opsForValue = redisTemplate.opsForValue();
-        String key = "match:user:recommend:list:userList";
-        List<UserVO> recommendUserList = opsForValue.get(key);
-        if (recommendUserList == null) {
+        String key = "match:user:match:list:userList";
+        List<UserVO> matchUserVOList = opsForValue.get(key);
+        if (matchUserVOList == null) {
             // 如果没有缓存，则查询数据库，并存入缓存
-            recommendUserList = userService.getRecommendUserList(userQueryRequest, request);
-            opsForValue.set(key, recommendUserList);
+            matchUserVOList = userService.listMatchUSerVO(userMatchQueryRequest, loginUser);
+            opsForValue.set(key, matchUserVOList);
         }
-        // 对 recommendUserList 进行分页处理
+        // 对 matchUserVOList 进行分页处理
         int fromIndex = (int) ((current - 1) * size);
-        int toIndex = Math.min((int) (current * size), recommendUserList.size());
-        List<UserVO> pageList = recommendUserList.subList(fromIndex, toIndex);
+        int toIndex = Math.min((int) (current * size), matchUserVOList.size());
+        List<UserVO> pageList = matchUserVOList.subList(fromIndex, toIndex);
 
         // 创建分页对象
         Page<UserVO> userVOPage = new Page<>(current, size);

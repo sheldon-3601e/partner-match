@@ -9,6 +9,7 @@ import com.sheldon.match.model.dto.team.TeamQuitRequest;
 import com.sheldon.match.model.entity.Team;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.TeamUserVO;
+import com.sheldon.match.model.vo.UserVO;
 
 import java.util.List;
 
@@ -110,5 +111,6 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     List<TeamUserVO> listCreatedTeam(User loginUser);
+
 
 }

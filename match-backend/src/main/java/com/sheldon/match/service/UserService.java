@@ -1,8 +1,8 @@
 package com.sheldon.match.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.sheldon.match.model.dto.user.UserMatchQueryRequest;
 import com.sheldon.match.model.dto.user.UserQueryRequest;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.LoginUserVO;
@@ -152,18 +152,18 @@ public interface UserService extends IService<User> {
      */
     List<String> getTags(User user);
 
-    /**
-     * 获取推荐用户列表
-     *
-     * @param userQueryRequest
-     * @param request
-     * @return
-     */
-    List<UserVO> getRecommendUserList(UserQueryRequest userQueryRequest, HttpServletRequest request);
+    List<String> getTags(String tags);
 
     /**
      * 推荐用户预热
      * @return
      */
     List<UserVO> getRecommendUserList();
+
+    /**
+     * 查询匹配的用户列表
+     * @param loginUser
+     * @return
+     */
+    List<UserVO> listMatchUSerVO(UserMatchQueryRequest userMatchQueryRequest, User loginUser);
 }

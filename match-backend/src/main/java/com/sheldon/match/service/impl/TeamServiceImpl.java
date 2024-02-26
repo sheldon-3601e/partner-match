@@ -22,16 +22,13 @@ import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.TeamService;
 import com.sheldon.match.service.UserService;
 import com.sheldon.match.service.UserTeamService;
-import java.util.Collections;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -450,8 +447,10 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         queryWrapper.eq("userId", userId);
         List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
         // 根据队伍 id 查询队伍信息
-        List<Long> teamIds = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toList());
-        List<Team> teams = this.listByIds(teamIds);
+        // 过滤到可能重复的队伍 Id
+        Map<Long, List<UserTeam>> listMap = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
+        ArrayList<Long> idList = new ArrayList<>(listMap.keySet());
+        List<Team> teams = this.listByIds(idList);
         // 再查询 队伍的创建者信息, 封装返回对象
         return getTeamUserVO(teams);
     }

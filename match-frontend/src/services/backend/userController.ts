@@ -67,6 +67,21 @@ export async function getUserVoByIdUsingGet(
   });
 }
 
+/** listMatchUSerVO POST /api/user/list/match/page/vo */
+export async function listMatchUSerVoUsingPost(
+  body: API.UserMatchQueryRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponsePageUserVO_>('/api/user/list/match/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** listUserByPage POST /api/user/list/page */
 export async function listUserByPageUsingPost(
   body: API.UserQueryRequest,
@@ -146,21 +161,6 @@ export async function userLoginByWxOpenUsingGet(
 export async function userLogoutUsingPost(options?: { [key: string]: any }) {
   return request<API.BaseResponseBoolean_>('/api/user/logout', {
     method: 'POST',
-    ...(options || {}),
-  });
-}
-
-/** listRecommendUserVOByPage POST /api/user/recommend/list/page/vo */
-export async function listRecommendUserVoByPageUsingPost(
-  body: API.UserQueryRequest,
-  options?: { [key: string]: any },
-) {
-  return request<API.BaseResponsePageUserVO_>('/api/user/recommend/list/page/vo', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
     ...(options || {}),
   });
 }

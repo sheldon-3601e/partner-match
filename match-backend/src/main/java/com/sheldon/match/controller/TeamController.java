@@ -12,6 +12,7 @@ import com.sheldon.match.model.dto.team.*;
 import com.sheldon.match.model.entity.Team;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.vo.TeamUserVO;
+import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.TeamService;
 import com.sheldon.match.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -187,7 +188,7 @@ public class TeamController {
      * @param request
      * @return
      */
-    @PostMapping("/list/joined")
+    @PostMapping("/list/my/joined")
     public BaseResponse<List<TeamUserVO>> listJoinedTeam(HttpServletRequest request) {
 
         User loginUser = userService.getLoginUser(request);
@@ -201,13 +202,14 @@ public class TeamController {
      * @param request
      * @return
      */
-    @PostMapping("/list/create")
+    @PostMapping("/list/my/create")
     public BaseResponse<List<TeamUserVO>> listCreatedTeam(HttpServletRequest request) {
 
         User loginUser = userService.getLoginUser(request);
         List<TeamUserVO> joinedTeamList = teamService.listCreatedTeam(loginUser);
         return ResultUtils.success(joinedTeamList);
     }
+
 
 
 }

@@ -1,10 +1,7 @@
 package com.sheldon.match.service.impl;
 
-import static com.sheldon.match.constant.UserConstant.USER_LOGIN_STATE;
-
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -12,25 +9,29 @@ import com.sheldon.match.common.ErrorCode;
 import com.sheldon.match.constant.CommonConstant;
 import com.sheldon.match.exception.BusinessException;
 import com.sheldon.match.mapper.UserMapper;
+import com.sheldon.match.model.dto.user.UserMatchQueryRequest;
 import com.sheldon.match.model.dto.user.UserQueryRequest;
 import com.sheldon.match.model.entity.User;
 import com.sheldon.match.model.enums.UserRoleEnum;
 import com.sheldon.match.model.vo.LoginUserVO;
 import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.UserService;
+import com.sheldon.match.utils.AlgorithmUtils;
 import com.sheldon.match.utils.SqlUtils;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.sheldon.match.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户服务实现
@@ -49,6 +50,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     public static final String SALT = "yupi";
+
+    Gson gson = new Gson();
+
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -281,6 +285,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 根据标签查询用户（SQL语句）
+     *
      * @param tagNameList 标签列表
      * @return
      */
@@ -300,6 +305,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 根据标签查询用户（内存）
+     *
      * @param tagNameList 标签列表
      * @return
      */
@@ -313,7 +319,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 2.遍历用户
         List<User> userList = allUsers.stream().filter(user -> {
             // 3.解析标签列表，转化为字符串集合
-            Gson gson = new Gson();
             Set<String> tagNameSet = gson.fromJson(user.getTags(), new TypeToken<Set<String>>() {
             }.getType());
             if (CollUtil.isEmpty(tagNameSet)) {
@@ -334,8 +339,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 2.遍历用户
         List<User> userRes = userList.stream().filter(user -> {
             // 3.解析标签列表，转化为字符串集合
-            Gson gson = new Gson();
-            Set<String> tagNameSet = gson.fromJson(user.getTags(), new TypeToken<Set<String>>() {}.getType());
+            Set<String> tagNameSet = gson.fromJson(user.getTags(), new TypeToken<Set<String>>() {
+            }.getType());
             if (CollUtil.isEmpty(tagNameSet)) {
                 return false;
             }
@@ -348,18 +353,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<String> getTags(User user) {
-        Gson gson = new Gson();
-        return gson.fromJson(user.getTags(), new TypeToken<List<String>>() {}.getType());
+        if (user == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户为空");
+        }
+        String tags = user.getTags();
+        if (StringUtils.isBlank(tags)) {
+            return new ArrayList<>();
+        }
+        return gson.fromJson(tags, new TypeToken<List<String>>() {
+        }.getType());
     }
 
     @Override
-    public List<UserVO> getRecommendUserList(UserQueryRequest userQueryRequest, HttpServletRequest request) {
-        // TODO 用户推荐算法优化
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        // id 小于等于 32
-        queryWrapper.le("id", 32);
-        List<User> users = userMapper.selectList(queryWrapper);
-        return this.getUserVO(users);
+    public List<String> getTags(String tags) {
+        if (StringUtils.isBlank(tags)) {
+            return new ArrayList<>();
+        }
+        return gson.fromJson(tags, new TypeToken<List<String>>() {
+        }.getType());
     }
 
     @Override
@@ -369,6 +380,59 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.le("id", 32);
         List<User> users = userMapper.selectList(queryWrapper);
         return this.getUserVO(users);
+    }
+
+    @Override
+    public List<UserVO> listMatchUSerVO(UserMatchQueryRequest userMatchQueryRequest, User loginUser) {
+
+        Integer matchNum = userMatchQueryRequest.getMatchNum();
+        if (matchNum == null || matchNum <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "匹配数量错误");
+        }
+        List<String> tagList = this.getTags(loginUser);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("id", "tags");
+        queryWrapper.isNotNull("tags");
+        List<User> userList = this.list(queryWrapper);
+        // 用户 => 相似度
+        List<Pair<User, Long>> userDistanceList = new ArrayList<>();
+        for (User user : userList) {
+            String userTags = user.getTags();
+            if (StringUtils.isBlank(userTags) || user.getId() == loginUser.getId()) {
+                continue;
+            }
+            List<String> userTagList = this.getTags(userTags);
+            long distance = AlgorithmUtils.minDistance(tagList, userTagList);
+            userDistanceList.add(new Pair<>(user, distance));
+        }
+        // 按照相似度升序排列
+        List<Pair<User, Long>> topUserPairList = userDistanceList
+                .stream()
+                .sorted((a, b) -> (int) (a.getValue() - b.getValue()))
+                .limit(matchNum)
+                .collect(Collectors.toList());
+
+        List<Long> topUserIdList = topUserPairList
+                .stream()
+                .map(pair -> pair.getKey().getId())
+                .collect(Collectors.toList());
+
+        QueryWrapper<User> topUserQueryWrapper = new QueryWrapper<>();
+        topUserQueryWrapper.in("id", topUserIdList);
+        // 未排序的用户 Map 集合
+        // id -> UserVO
+        Map<Long, List<UserVO>> unOrderUserList = this.list(topUserQueryWrapper).stream().map(this::getUserVO).collect(Collectors.groupingBy(UserVO::getId));
+
+        // 根据排序的顺序，封装返回的用户列表
+        List<UserVO> resultUserVOList = new ArrayList<>();
+        topUserIdList.forEach(id -> {
+            List<UserVO> userVOList = unOrderUserList.get(id);
+            if (CollUtil.isNotEmpty(userVOList)) {
+                resultUserVOList.add(userVOList.get(0));
+            }
+        });
+
+        return resultUserVOList;
     }
 
 }

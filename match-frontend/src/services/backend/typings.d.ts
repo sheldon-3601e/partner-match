@@ -379,6 +379,14 @@ declare namespace API {
     userPassword?: string;
   };
 
+  type UserMatchQueryRequest = {
+    current?: number;
+    matchNum?: number;
+    pageSize?: number;
+    sortField?: string;
+    sortOrder?: string;
+  };
+
   type UserQueryByTagRequest = {
     current?: number;
     pageSize?: number;
