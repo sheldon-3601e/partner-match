@@ -82,7 +82,9 @@ const MatchHome: React.FC = () => {
             }
             extra={
               <div>
-                <Button key={item.id} type={'primary'}>
+                <Button key={item.id} type={'primary'} onClick={() => {
+                  message.warning('功能正在开发，敬请期待！')
+                }}>
                   关注
                 </Button>
               </div>

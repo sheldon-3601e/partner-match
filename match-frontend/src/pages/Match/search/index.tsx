@@ -1,5 +1,5 @@
 import { TAG_IS_PARENT } from '@/constants/TagConstants';
-import useStyles from '@/pages/Match/search/articles/style.style';
+import useStyles from '@/pages/Match/search/style.style';
 import { listTagVoUsingPost } from '@/services/backend/tagController';
 import { listUserVoByTagAndPageUsingPost } from '@/services/backend/userController';
 import { PageContainer, ProList } from '@ant-design/pro-components';
@@ -200,51 +200,6 @@ const Search: FC<SearchProps> = () => {
                   ))}
                 </TagSelect>
               </FormItem>
-            </StandardFormRow>
-            <StandardFormRow title="owner" grid>
-              <FormItem name="owner" noStyle>
-                <Select
-                  mode="multiple"
-                  placeholder="选择 owner"
-                  style={{ minWidth: '6rem' }}
-                  options={ownerOptions}
-                />
-              </FormItem>
-              <a className={styles.selfTrigger} onClick={setOwner}>
-                只看自己的
-              </a>
-            </StandardFormRow>
-            <StandardFormRow title="其它选项" grid last>
-              <Row gutter={16}>
-                <Col xl={8} lg={10} md={12} sm={24} xs={24}>
-                  <FormItem {...formItemLayout} label="活跃用户" name="user">
-                    <Select
-                      placeholder="不限"
-                      style={{ maxWidth: 200, width: '100%' }}
-                      options={[
-                        {
-                          label: '李三',
-                          value: 'lisa',
-                        },
-                      ]}
-                    />
-                  </FormItem>
-                </Col>
-                <Col xl={8} lg={10} md={12} sm={24} xs={24}>
-                  <FormItem {...formItemLayout} label="好评度" name="rate">
-                    <Select
-                      placeholder="不限"
-                      style={{ maxWidth: 200, width: '100%' }}
-                      options={[
-                        {
-                          label: '优秀',
-                          value: 'good',
-                        },
-                      ]}
-                    />
-                  </FormItem>
-                </Col>
-              </Row>
             </StandardFormRow>
           </Form>
         </Card>
