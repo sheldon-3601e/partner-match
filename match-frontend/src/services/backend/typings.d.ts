@@ -314,7 +314,7 @@ declare namespace API {
   };
 
   type TeamQuitRequest = {
-    teamId?: string;
+    id?: string;
   };
 
   type TeamUpdateRequest = {

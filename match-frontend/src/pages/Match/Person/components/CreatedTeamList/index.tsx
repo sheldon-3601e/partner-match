@@ -1,6 +1,11 @@
 import EditTeam from '@/pages/Match/Team/components/EditTeam';
-import { listCreatedTeamUsingPost, updateTeamUsingPost } from '@/services/backend/teamController';
-import { DownloadOutlined, EditOutlined, ShareAltOutlined } from '@ant-design/icons';
+import {dissolveTeamUsingPost, listCreatedTeamUsingPost, updateTeamUsingPost} from '@/services/backend/teamController';
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  ShareAltOutlined,
+} from '@ant-design/icons';
 import { ProCard } from '@ant-design/pro-components';
 import { Avatar, Card, List, message, Tooltip } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
@@ -24,6 +29,10 @@ const CreatedTeamList: React.FC = () => {
     }
   };
 
+  /**
+   * 编辑队伍
+   * @param value
+   */
   const editTeam = async (value: API.TeamUserVO) => {
     const result = await updateTeamUsingPost({
       ...value,
@@ -35,6 +44,18 @@ const CreatedTeamList: React.FC = () => {
       message.error('修改信息失败，请您重试！');
     }
   };
+
+  const dissolveTeam = async (teamId: string) => {
+    const result = await dissolveTeamUsingPost({
+      id: teamId
+    })
+    if (result.data) {
+      message.success('队伍解散成功')
+      loadData()
+    } else {
+      message.error('队伍解散失败，请您重试！')
+    }
+  }
 
   useEffect(() => {
     loadData();
@@ -79,8 +100,8 @@ const CreatedTeamList: React.FC = () => {
                 paddingBottom: 20,
               }}
               actions={[
-                <Tooltip key="download" title="下载">
-                  <DownloadOutlined />
+                <Tooltip key="download" title="解散">
+                  <DeleteOutlined onClick={async () => dissolveTeam(item.id ?? '') }/>
                 </Tooltip>,
                 <Tooltip title="编辑" key="edit">
                   <EditOutlined
@@ -91,7 +112,9 @@ const CreatedTeamList: React.FC = () => {
                   />
                 </Tooltip>,
                 <Tooltip title="分享" key="share">
-                  <ShareAltOutlined />
+                  <ShareAltOutlined onClick={() => {
+                    message.warning('该功能正在开发，敬请期待！')
+                  }}/>
                 </Tooltip>,
               ]}
             >

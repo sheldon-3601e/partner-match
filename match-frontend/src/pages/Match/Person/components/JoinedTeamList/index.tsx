@@ -1,7 +1,7 @@
 import { Avatar, Button, List, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import useStyles from './index.style';
-import { listJoinedTeamUsingPost } from '@/services/backend/teamController';
+import {listJoinedTeamUsingPost, quitTeamUsingPost} from '@/services/backend/teamController';
 import { PROPAGATE_HOST } from '@/constants';
 import dayjs from 'dayjs';
 
@@ -9,7 +9,9 @@ const JoinedTeamList: React.FC = () => {
   const { styles } = useStyles();
   const [joinedTeamList, setJoinedTeamList] = useState<API.TeamUserVO[]>([]);
 
-  // 获取已加入队伍列表数据
+  /**
+   * 获取已加入队伍列表数据
+   */
   const loadData = async () => {
     const result = await listJoinedTeamUsingPost();
     if (result.data) {
@@ -18,6 +20,22 @@ const JoinedTeamList: React.FC = () => {
       message.error('获取数据失败，请刷新重试！');
     }
   };
+
+  /**
+   * 退出队伍
+   * @param teamId
+   */
+  const quitTeam = async (teamId: string) => {
+    const result = await quitTeamUsingPost({
+      id: teamId,
+    })
+    if (result.data) {
+      message.success('队伍退出成功')
+      loadData()
+    } else {
+      message.error('队伍退出失败，请您重试！')
+    }
+  }
 
   useEffect(() => {
     loadData();
@@ -34,7 +52,7 @@ const JoinedTeamList: React.FC = () => {
         <List.Item
           key={item.id}
           actions={[
-            <Button key={item.id} type={'primary'} size={'small'}>
+            <Button key={item.id} type={'primary'} size={'small'} onClick={() => quitTeam(item.id?? '')}>
               退出
             </Button>,
           ]}

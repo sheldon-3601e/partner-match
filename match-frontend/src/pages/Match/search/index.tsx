@@ -1,13 +1,11 @@
 import { TAG_IS_PARENT } from '@/constants/TagConstants';
-import useStyles from '@/pages/Match/search/style.style';
 import { listTagVoUsingPost } from '@/services/backend/tagController';
 import { listUserVoByTagAndPageUsingPost } from '@/services/backend/userController';
 import { PageContainer, ProList } from '@ant-design/pro-components';
 import { useLocation, useMatch } from '@umijs/max';
-import { Button, Card, Col, Form, Input, Row, Select, Space, Tag } from 'antd';
-import { DefaultOptionType } from 'antd/es/select';
+import { Button, Card, Form, Input, Space, Tag } from 'antd';
 import type { FC } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import StandardFormRow from './components/StandardFormRow';
 import TagSelect from './components/TagSelect';
 
@@ -22,54 +20,6 @@ const Search: FC<SearchProps> = () => {
   useMatch(location.pathname);
 
   const [form] = Form.useForm();
-
-  const { styles } = useStyles();
-
-  const setOwner = () => {
-    form.setFieldsValue({
-      owner: ['wzj'],
-    });
-  };
-
-  const owners = [
-    {
-      id: 'wzj',
-      name: '我自己',
-    },
-    {
-      id: 'wjh',
-      name: '吴家豪',
-    },
-    {
-      id: 'zxx',
-      name: '周星星',
-    },
-    {
-      id: 'zly',
-      name: '赵丽颖',
-    },
-    {
-      id: 'ym',
-      name: '姚明',
-    },
-  ];
-  // 响应式大小
-  const formItemLayout = {
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 24 },
-      md: { span: 12 },
-    },
-  };
-
-  const ownerOptions = useMemo<DefaultOptionType[]>(
-    () =>
-      owners.map((item) => ({
-        label: item.name,
-        value: item.id,
-      })),
-    [owners],
-  );
 
   // 分页相关设置
   // 初始化查询参数
