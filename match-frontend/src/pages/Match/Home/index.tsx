@@ -1,10 +1,10 @@
 import MarginBottom16 from '@/components/margBottom16';
-import { listRecommendUserVoByPageUsingPost } from '@/services/backend/userController';
-import { RedoOutlined } from '@ant-design/icons';
-import { PageContainer, ProCard } from '@ant-design/pro-components';
+import {listMatchUSerVoUsingPost} from '@/services/backend/userController';
+import {RedoOutlined} from '@ant-design/icons';
+import {PageContainer, ProCard} from '@ant-design/pro-components';
 import '@umijs/max';
-import { Avatar, Button, Tag } from 'antd';
-import React, { useEffect, useState } from 'react';
+import {Avatar, Button, message, Tag} from 'antd';
+import React, {useEffect, useRef, useState} from 'react';
 
 /**
  * 伙伴匹配 主页
@@ -16,16 +16,23 @@ const MatchHome: React.FC = () => {
   const initQueryParams = {
     current: 1,
     pageSize: 8,
+    matchNum: 32
   };
   const [queryParams, setQueryParams] = useState(initQueryParams);
   const [recommendUserList, setRecommendUserList] = useState<API.UserVO[]>([]);
 
+  const loading = useRef<boolean>(true)
+
   // 获取推荐用户
   const loadData = async () => {
-    const res = await listRecommendUserVoByPageUsingPost(queryParams);
+    loading.current = true
+    const res = await listMatchUSerVoUsingPost(queryParams);
     if (res.data) {
       setRecommendUserList(res.data.records ?? []);
+    } else {
+      message.error('获取匹配用户失败，请您刷新！')
     }
+    loading.current = false
   };
 
   // 刷新页面数据
@@ -47,6 +54,7 @@ const MatchHome: React.FC = () => {
   return (
     <PageContainer title={'主页'}>
       <ProCard
+        loading={loading.current}
         style={{ marginBlockStart: 8 }}
         title="推荐用户"
         extra={
