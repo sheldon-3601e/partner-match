@@ -248,8 +248,8 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
             queryWrapper.eq("id", id);
         }
         if (StringUtils.isNotBlank(searchKey)) {
-            queryWrapper.like("teamName", searchKey)
-                    .or().like("description", searchKey);
+            queryWrapper.and(wrapper -> wrapper.like("teamName", searchKey)
+                    .or().like("description", searchKey));
         }
         if (StringUtils.isNotBlank(teamName)) {
             queryWrapper.like("teamName", teamName);
@@ -261,7 +261,8 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
             queryWrapper.eq("maxNum", maxNum);
         }
         // 查询不存在过期时间或者过期时间大于当前时间
-        queryWrapper.isNull("expireTime").or().ge("expireTime", new Date());
+        queryWrapper.and(wrapper ->
+                wrapper.isNull("expireTime").or().ge("expireTime", new Date()));
         if (userId != null) {
             queryWrapper.eq("userId", userId);
         }

@@ -1,15 +1,12 @@
 import MargBottom16 from '@/components/margBottom16';
-import { TeamStatusEnum } from '@/constants/TeamStatus';
-import {
-  joinTeamUsingPost,
-  listTeamUserVoByPageUsingPost,
-} from '@/services/backend/teamController';
-import { PlusOutlined } from '@ant-design/icons';
-import { ActionType, PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
+import {TeamStatusEnum} from '@/constants/TeamStatus';
+import {joinTeamUsingPost, listTeamUserVoByPageUsingPost,} from '@/services/backend/teamController';
+import {PlusOutlined} from '@ant-design/icons';
+import {ActionType, PageContainer, ProColumns, ProTable} from '@ant-design/pro-components';
 import '@umijs/max';
-import { Avatar, Button, Input, message, Modal, Popconfirm, Space } from 'antd';
-import React, { useRef, useState } from 'react';
-import CreateModal from './components/CreateModal';
+import {Avatar, Button, Input, message, Modal, Popconfirm, Space} from 'antd';
+import React, {useRef, useState} from 'react';
+import {useNavigate} from "react-router-dom";
 
 /**
  * 伙伴匹配 组队页
@@ -17,14 +14,14 @@ import CreateModal from './components/CreateModal';
  * @constructor
  */
 const MatchTeam: React.FC = () => {
-  // 是否显示新建窗口
-  const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
   // 是否显示更新窗口
   const actionRef = useRef<ActionType>();
   // 当前用户点击的数据
   const [teamId, setTeamId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [passWord, setPassWord] = useState('');
+
+  const navigate = useNavigate()
 
   /**
    * 加入队伍
@@ -79,6 +76,7 @@ const MatchTeam: React.FC = () => {
       title: '创建人',
       dataIndex: 'createUser',
       valueType: 'text',
+      hideInSearch: true,
       render: (_, record) => (
         <div>
           <Avatar
@@ -156,7 +154,7 @@ const MatchTeam: React.FC = () => {
             type="primary"
             key="primary"
             onClick={() => {
-              setCreateModalVisible(true);
+              navigate('/match/team/add')
             }}
           >
             <PlusOutlined /> 新建
@@ -193,17 +191,6 @@ const MatchTeam: React.FC = () => {
         />
       </Modal>
 
-      <CreateModal
-        visible={createModalVisible}
-        columns={columns}
-        onSubmit={() => {
-          setCreateModalVisible(false);
-          actionRef.current?.reload();
-        }}
-        onCancel={() => {
-          setCreateModalVisible(false);
-        }}
-      />
     </PageContainer>
   );
 };

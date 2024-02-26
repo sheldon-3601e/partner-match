@@ -210,6 +210,4 @@ public class TeamController {
         return ResultUtils.success(joinedTeamList);
     }
 
-
-
 }
