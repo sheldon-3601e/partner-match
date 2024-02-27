@@ -5,14 +5,21 @@ import { PageContainer, ProList } from '@ant-design/pro-components';
 import { useLocation, useMatch } from '@umijs/max';
 import { Button, Card, Form, Input, message, Space, Tag } from 'antd';
 import type { FC } from 'react';
-import {useEffect, useRef, useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import StandardFormRow from './components/StandardFormRow';
 import TagSelect from './components/TagSelect';
 
 const FormItem = Form.Item;
 
 // 初始化查询参数
-const initPageParams = {
+interface PageParams {
+  pageSize: number;
+  current: number;
+  sortField: string;
+  sortOrder: string;
+}
+
+const initPageParams: PageParams = {
   pageSize: 10,
   current: 1,
   sortField: 'id',
@@ -20,6 +27,7 @@ const initPageParams = {
 };
 
 const Search: FC = () => {
+
   const location = useLocation();
   useMatch(location.pathname);
 
@@ -27,12 +35,15 @@ const Search: FC = () => {
 
   // 标签列表
   const [tagList, setTagList] = useState<API.TagVO[]>([]);
+
   // 标签的父标签列表
   const [tagParentList, setTagParentList] = useState<API.TagVO[]>([]);
-  // 父标签所对应的子标签
-  const [tagCurrentList, setTagCurrentList] = useState<API.TagVO[]>([]);
+
   // 当前用户选择的标签
   const [tagParentSelectedList, setTagParentSelectedList] = useState<(string | number)[]>([]);
+
+  // 父标签所对应的子标签
+  const [tagCurrentList, setTagCurrentList] = useState<API.TagVO[]>([]);
 
   // 用户列表
   const [userList, setUserList] = useState<API.UserVO[]>([]);
@@ -40,24 +51,32 @@ const Search: FC = () => {
   // 查询相关参数
   const [pageParams, setPageParams] = useState({ ...initPageParams });
   const [searchKey, setSearchKey] = useState('');
-  const [resultTagList, setResultTagList] = useState<string[]>([]);
+  const [resultTagList, setResultTagList] = useState<(string | number)[]>([]);
 
-  const total = useRef();
+  const total = useRef<number>(100);
+
+  const [loading, setLoading] = useState(false);
 
   /**'
    * 加载用户数据
    */
   const loadUserList = async () => {
+    setLoading(true);
+    // 转化标签类型
+    const tagNameList = resultTagList.map((tag) => String(tag));
     const result = await listUserVoByTagAndPageUsingPost({
       ...pageParams,
       searchKey,
-      tagNameList: resultTagList,
+      tagNameList,
     });
     if (result.data) {
       console.log('userList:', result.data);
       setUserList(result.data.records ?? []);
-      total.current = result.data.total ?? 0
+      total.current = parseInt(result.data.total ?? '100');
+    } else {
+      message.error('获取数据失败，请您刷新页面！');
     }
+    setLoading(false);
   };
 
   /**
@@ -66,10 +85,8 @@ const Search: FC = () => {
   const loadTagList = async () => {
     const result = await listTagVoUsingPost();
     if (result.data) {
-      console.log('tagList:', result.data);
       setTagList(result.data);
       const parentList = result.data.filter((tag) => tag.isParent === TAG_IS_PARENT);
-      console.log('parentList:', parentList);
       setTagParentList(parentList);
     }
   };
@@ -79,12 +96,10 @@ const Search: FC = () => {
    * @param page
    */
   const handlePageChange = (page: number) => {
-    console.log(page);
     setPageParams({
       ...pageParams,
       current: page,
     });
-    loadUserList();
   };
 
   /**
@@ -93,9 +108,12 @@ const Search: FC = () => {
    */
   const handleFormSubmit = async (value: string) => {
     setSearchKey(value);
-    console.log('handleFormSubmit');
     loadUserList();
   };
+
+  useEffect(() => {
+    loadUserList();
+  }, [pageParams]);
 
   // 初始数据
   useEffect(() => {
@@ -109,7 +127,6 @@ const Search: FC = () => {
     const tagCurrent = tagList.filter((tag) =>
       tagParentSelectedList.includes(String(tag.parentId)),
     );
-    console.log(tagCurrent);
     setTagCurrentList(tagCurrent);
   }, [tagParentSelectedList]);
 
@@ -128,20 +145,16 @@ const Search: FC = () => {
       }
     >
       <>
-        <Button
-          onClick={() => {
-            console.log(resultTagList);
-          }}
-        >
-          测试
-        </Button>
-      </>
-      <>
         <Card bordered={false}>
           <Form layout="inline" form={form}>
             <StandardFormRow title="标签类别" block style={{ paddingBottom: 11 }}>
               <FormItem name="parentTagList">
-                <TagSelect expandable onChange={(value) => setTagParentSelectedList(value)}>
+                <TagSelect
+                  expandable
+                  onChange={(value) => {
+                    setTagParentSelectedList(value);
+                  }}
+                >
                   {tagParentList.map((tag) => (
                     <TagSelect.Option value={tag.id!} key={tag.id}>
                       {tag.tagName}
@@ -169,6 +182,7 @@ const Search: FC = () => {
           bodyStyle={{ padding: '8px 32px 32px 32px' }}
         >
           <ProList<API.UserVO>
+            loading={loading}
             style={{ padding: '16px' }}
             itemLayout="vertical"
             rowKey="id"
@@ -176,7 +190,8 @@ const Search: FC = () => {
             pagination={{
               onChange: handlePageChange,
               current: pageParams.current,
-              total: total
+              pageSize: pageParams.pageSize,
+              total: total.current,
             }}
             metas={{
               title: {

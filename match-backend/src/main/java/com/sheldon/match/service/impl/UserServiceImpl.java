@@ -415,6 +415,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .limit(matchNum)
                 .collect(Collectors.toList());
 
+        // 获取用户 id 列表
         List<Long> topUserIdList = topUserPairList
                 .stream()
                 .map(pair -> pair.getKey().getId())
@@ -475,8 +476,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 queryWrapper);
 
         List<User> userList = userPage.getRecords();
-
-        Page<UserVO> userVOPage = new Page<>(current, size, 100);
+        long total = userPage.getTotal() > 10 ? 10 : userPage.getTotal();
+        // 封装返回结果
+        Page<UserVO> userVOPage = new Page<>(current, size, total);
         List<UserVO> userVO = this.getUserVO(userList);
         userVOPage.setRecords(userVO);
 
