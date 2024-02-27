@@ -1,88 +1,7 @@
-import {PageContainer} from '@ant-design/pro-components';
-import {Card, theme} from 'antd';
+import { PageContainer } from '@ant-design/pro-components';
+import { Card, theme } from 'antd';
 import React from 'react';
-import defaultSettings from "../../config/defaultSettings";
-
-/**
- * 每个单独的卡片，为了复用样式抽成了组件
- * @param param0
- * @returns
- */
-const InfoCard: React.FC<{
-  title: string;
-  index: number;
-  desc: string;
-  href: string;
-}> = ({ title, href, index, desc }) => {
-  const { useToken } = theme;
-
-  const { token } = useToken();
-
-  return (
-    <div
-      style={{
-        backgroundColor: token.colorBgContainer,
-        boxShadow: token.boxShadow,
-        borderRadius: '8px',
-        fontSize: '14px',
-        color: token.colorTextSecondary,
-        lineHeight: '22px',
-        padding: '16px 19px',
-        minWidth: '220px',
-        flex: 1,
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          gap: '4px',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            lineHeight: '22px',
-            backgroundSize: '100%',
-            textAlign: 'center',
-            padding: '8px 16px 16px 12px',
-            color: '#FFF',
-            fontWeight: 'bold',
-            backgroundImage:
-              "url('https://gw.alipayobjects.com/zos/bmw-prod/daaf8d50-8e6d-4251-905d-676a24ddfa12.svg')",
-          }}
-        >
-          {index}
-        </div>
-        <div
-          style={{
-            fontSize: '16px',
-            color: token.colorText,
-            paddingBottom: 8,
-          }}
-        >
-          {title}
-        </div>
-      </div>
-      <div
-        style={{
-          fontSize: '14px',
-          color: token.colorTextSecondary,
-          textAlign: 'justify',
-          lineHeight: '22px',
-          marginBottom: 8,
-        }}
-      >
-        {desc}
-      </div>
-      <a href={href} target="_blank" rel="noreferrer">
-        了解更多 {'>'}
-      </a>
-    </div>
-  );
-};
-
+import defaultSettings from '../../config/defaultSettings';
 const Welcome: React.FC = () => {
   const { token } = theme.useToken();
   return (
@@ -100,60 +19,29 @@ const Welcome: React.FC = () => {
       >
         <div
           style={{
-            backgroundPosition: '100% -30%',
+            backgroundPosition: '100%',
             backgroundRepeat: 'no-repeat',
-            backgroundSize: '274px auto',
+            backgroundSize: '300px auto',
             backgroundImage:
-              "url('https://gw.alipayobjects.com/mdn/rms_a9745b/afts/img/A*BuFmQqsB2iAAAAAAAAAAAAAAARQnAQ')",
+              "url('https://ichef.bbci.co.uk/ace/ws/640/cpsprodpb/182B7/production/_118599989_gettyimages-2187838.jpg')",
           }}
         >
-          <div
-            style={{
-              fontSize: '20px',
-              color: token.colorTextHeading,
-            }}
-          >
-            欢迎使用 Ant Design Pro
+          <div style={{ fontSize: '24px', color: token.colorTextHeading }}>
+            <strong>欢迎来到我们的用户匹配平台！</strong>
           </div>
-          <p
-            style={{
-              fontSize: '14px',
-              color: token.colorTextSecondary,
-              lineHeight: '22px',
-              marginTop: 16,
-              marginBottom: 32,
-              width: '65%',
-            }}
-          >
-            Ant Design Pro 是一个整合了 umi，Ant Design 和 ProComponents
-            的脚手架方案。致力于在设计规范和基础组件的基础上，继续向上构建，提炼出典型模板/业务组件/配套设计资源，进一步提升企业级中后台产品设计研发过程中的『用户』和『设计者』的体验。
+          <p style={{
+            fontSize: '16px',
+            color: token.colorTextSecondary,
+            lineHeight: '28px',
+            marginTop: '16px',
+            marginBottom: '32px',
+            width: '55%',
+          }}>
+            在这里，我们为您提供了一个全新的社交体验，让您轻松地找到志同道合的伙伴，开启属于您的精彩旅程。<br />
+            我们不仅支持基本的用户管理功能，还为您提供了强大的按标签检索、推荐相似用户以及组队功能。无论您是寻找共同爱好的伙伴，还是需要组建一个高效团队，我们都能够满足您的需求。<br />
+            通过我们智能的匹配算法，您可以快速地找到与您兴趣相投的人，与他们交流、合作，共同探索更多可能性。<br />
+            现在就加入我们，一起探索无限可能！<br />
           </p>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 16,
-            }}
-          >
-            <InfoCard
-              index={1}
-              href="https://umijs.org/docs/introduce/introduce"
-              title="了解 umi"
-              desc="umi 是一个可扩展的企业级前端应用框架,umi 以路由为基础的，同时支持配置式路由和约定式路由，保证路由的功能完备，并以此进行功能扩展。"
-            />
-            <InfoCard
-              index={2}
-              title="了解 ant design"
-              href="https://ant.design"
-              desc="antd 是基于 Ant Design 设计体系的 React UI 组件库，主要用于研发企业级中后台产品。"
-            />
-            <InfoCard
-              index={3}
-              title="了解 Pro Components"
-              href="https://procomponents.ant.design"
-              desc="ProComponents 是一个基于 Ant Design 做了更高抽象的模板组件，以 一个组件就是一个页面为开发理念，为中后台开发带来更好的体验。"
-            />
-          </div>
         </div>
       </Card>
     </PageContainer>

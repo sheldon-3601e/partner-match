@@ -30,9 +30,6 @@ export async function getInitialState(): Promise<InitialState> {
       if (result.data) {
         // 用户已经登录
         initialState.currentUser = result.data;
-      } else {
-        // 用户未登录，跳转到登录页
-        history.push(loginPath);
       }
     } catch (error: any) {
       // 如果未登录
