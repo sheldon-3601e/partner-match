@@ -1,7 +1,8 @@
 import { PageContainer } from '@ant-design/pro-components';
-import {Card, Image, theme} from 'antd';
+import { Card, theme } from 'antd';
 import React from 'react';
 import defaultSettings from '../../config/defaultSettings';
+
 const Welcome: React.FC = () => {
   const { token } = theme.useToken();
   return (
