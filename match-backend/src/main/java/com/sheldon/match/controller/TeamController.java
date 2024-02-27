@@ -6,6 +6,7 @@ import com.sheldon.match.common.BaseResponse;
 import com.sheldon.match.common.DeleteRequest;
 import com.sheldon.match.common.ErrorCode;
 import com.sheldon.match.common.ResultUtils;
+import com.sheldon.match.constant.RedisConstant;
 import com.sheldon.match.exception.BusinessException;
 import com.sheldon.match.exception.ThrowUtils;
 import com.sheldon.match.model.dto.team.*;
@@ -15,7 +16,12 @@ import com.sheldon.match.model.vo.TeamUserVO;
 import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.TeamService;
 import com.sheldon.match.service.UserService;
+import io.lettuce.core.output.ListOfGenericMapsOutput;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RRateLimiter;
+import org.redisson.api.RateIntervalUnit;
+import org.redisson.api.RateType;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +48,9 @@ public class TeamController {
 
     @Resource
     private TeamService teamService;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     // region 增删改查
 
@@ -141,8 +150,19 @@ public class TeamController {
         if (teamJoinRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+
         User loginUser = userService.getLoginUser(request);
-        boolean result = teamService.joinTeam(teamJoinRequest, loginUser);
+        Long userId = loginUser.getId();
+        // 限流
+        RRateLimiter rateLimiter = redissonClient.getRateLimiter(RedisConstant.JOIN_TEAM_LOCK + userId);
+        rateLimiter.trySetRate(RateType.OVERALL, 1, 1, RateIntervalUnit.SECONDS);
+
+        boolean res = rateLimiter.tryAcquire();
+        boolean result = false;
+        if (res) {
+            // 获取令牌成功
+            result = teamService.joinTeam(teamJoinRequest, loginUser);
+        }
         return ResultUtils.success(result);
     }
 
