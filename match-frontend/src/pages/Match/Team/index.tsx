@@ -37,7 +37,10 @@ const MatchTeam: React.FC = () => {
     });
     if (result.data) {
       message.success('加入队伍成功');
+    } else {
+      message.error('加入队伍失败，请您重试！')
     }
+    actionRef.current?.reload()
   };
 
   const showModal = (teamId: string) => {
@@ -146,6 +149,7 @@ const MatchTeam: React.FC = () => {
       ),
     },
   ];
+
   return (
     <PageContainer>
       <ProTable<API.TeamUserVO>

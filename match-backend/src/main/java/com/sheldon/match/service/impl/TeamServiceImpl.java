@@ -9,6 +9,7 @@ import com.sheldon.match.common.ErrorCode;
 import com.sheldon.match.exception.BusinessException;
 import com.sheldon.match.exception.ThrowUtils;
 import com.sheldon.match.mapper.TeamMapper;
+import com.sheldon.match.mapper.UserTeamMapper;
 import com.sheldon.match.model.dto.team.TeamJoinRequest;
 import com.sheldon.match.model.dto.team.TeamQueryRequest;
 import com.sheldon.match.model.dto.team.TeamQuitRequest;
@@ -50,6 +51,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private UserTeamMapper userTeamMapper;
 
     @Override
     @Transactional
@@ -228,12 +232,10 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
 
     @Override
     public Page<TeamUserVO> listTeamUserVOByPage(TeamQueryRequest teamQueryRequest, User loginUser) {
-        Long id = teamQueryRequest.getId();
         String searchKey = teamQueryRequest.getSearchKey();
         String teamName = teamQueryRequest.getTeamName();
         String description = teamQueryRequest.getDescription();
         Integer maxNum = teamQueryRequest.getMaxNum();
-        Long userId = teamQueryRequest.getUserId();
         Integer status = teamQueryRequest.getStatus();
         int current = teamQueryRequest.getCurrent();
         int pageSize = teamQueryRequest.getPageSize();
@@ -243,9 +245,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortOrder)) {
             queryWrapper.orderBy(true, "ascend".equals(sortOrder), sortField);
-        }
-        if (id != null) {
-            queryWrapper.eq("id", id);
         }
         if (StringUtils.isNotBlank(searchKey)) {
             queryWrapper.and(wrapper -> wrapper.like("teamName", searchKey)
@@ -263,9 +262,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         // 查询不存在过期时间或者过期时间大于当前时间
         queryWrapper.and(wrapper ->
                 wrapper.isNull("expireTime").or().ge("expireTime", new Date()));
-        if (userId != null) {
-            queryWrapper.eq("userId", userId);
-        }
         // 普通用户只允许查询公开和加密的队伍
         // 管理员允许查询所有队伍
         if (status == null) {
@@ -283,15 +279,27 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
         // 分页查询队伍列表
         Page<Team> teamPage = this.page(new Page<>(current, pageSize), queryWrapper);
 
-        // 取出队伍列表，根据创建者id取出创建者信息
+        // 取出队伍列表
         List<Team> teamList = teamPage.getRecords();
+        // 除去本身已经加入的队伍
+        Long userId = loginUser.getId();
+
+        if (teamList != null && !teamList.isEmpty()) {
+            // 查询已加入的队伍 id
+            List<Long> hasJoinTeamIdList = userTeamMapper.listHasJoinTeamId(userId);
+            // 过滤掉已加入的队伍
+            teamList = teamList.stream().
+                    filter(team -> !hasJoinTeamIdList.contains(team.getId())).
+                    collect(Collectors.toList());
+        }
+        // 根据创建者id取出创建者信息
         List<TeamUserVO> teamUserVOList = getTeamUserVO(teamList);
 
         // 封装成Page返回
         Page<TeamUserVO> teamUserVOPage = new Page<>();
-        teamUserVOPage.setTotal(teamPage.getTotal());
         teamUserVOPage.setCurrent(teamPage.getCurrent());
         teamUserVOPage.setSize(teamPage.getSize());
+        teamUserVOPage.setTotal(teamUserVOList.size());
         teamUserVOPage.setRecords(teamUserVOList);
         return teamUserVOPage;
     }

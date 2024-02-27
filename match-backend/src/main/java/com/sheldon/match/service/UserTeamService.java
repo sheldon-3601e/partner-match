@@ -2,6 +2,9 @@ package com.sheldon.match.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sheldon.match.model.entity.UserTeam;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
 * @author 26483

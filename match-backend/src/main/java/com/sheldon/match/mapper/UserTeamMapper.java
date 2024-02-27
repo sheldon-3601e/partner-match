@@ -2,6 +2,9 @@ package com.sheldon.match.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sheldon.match.model.entity.UserTeam;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
 * @author 26483
@@ -11,6 +14,14 @@ import com.sheldon.match.model.entity.UserTeam;
 */
 public interface UserTeamMapper extends BaseMapper<UserTeam> {
 
+    /**
+     * 查询用户加入的队伍id
+     *
+     * @param userId
+     * @return
+     */
+    @Select("select teamId from user_team where userId = #{userId} and isDelete = 0")
+    List<Long> listHasJoinTeamId(Long userId);
 }
 
 
