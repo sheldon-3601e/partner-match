@@ -1,4 +1,5 @@
-import {addTeamUsingPost} from '@/services/backend/teamController';
+import MargBottom16 from '@/components/margBottom16';
+import { addTeamUsingPost } from '@/services/backend/teamController';
 import {
   PageContainer,
   ProCard,
@@ -10,15 +11,18 @@ import {
   ProFormTextArea,
 } from '@ant-design/pro-components';
 import '@umijs/max';
-import {message} from 'antd';
+import { message } from 'antd';
 import dayjs from 'dayjs';
-import React from 'react';
-import MargBottom16 from '@/components/margBottom16';
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CreateModal: React.FC = () => {
+  const navigate = useNavigate();
+  const [teamType, setTeamType] = useState<string>('0');
 
-  const navigate = useNavigate()
+  useEffect(() => {
+    console.log('teamType changed', teamType);
+  }, [teamType]);
 
   /**
    * 添加节点
@@ -33,7 +37,7 @@ const CreateModal: React.FC = () => {
       if (result.data) {
         message.success('创建成功');
         // 跳转页面
-        navigate('/match/team')
+        navigate('/match/team');
       }
     } catch (error: any) {
       hide();
@@ -45,7 +49,7 @@ const CreateModal: React.FC = () => {
     <PageContainer title={'创建队伍'}>
       <ProCard>
         <ProForm<API.TeamAddRequest>
-          style={{padding: '10px'}}
+          style={{ padding: '10px' }}
           layout={'horizontal'}
           onFinish={async (values) => handleAdd(values)}
           autoFocusFirstInput
@@ -88,18 +92,20 @@ const CreateModal: React.FC = () => {
               };
             }}
             rules={[
-                {
-                  validator: (_, value) =>{
-                    console.log(value)
-                    return value > dayjs(new Date()).add(1) ? Promise.resolve() : Promise.reject(new Error('过期时间应当大于当前时间'))
-                  }
-                    // value ? Promise.resolve() : Promise.reject(new Error('Should accept agreement')),
+              {
+                validator: (_, value) => {
+                  console.log(value);
+                  return value > dayjs(new Date()).add(1)
+                    ? Promise.resolve()
+                    : Promise.reject(new Error('过期时间应当大于当前时间'));
                 },
-              ]}
+                // value ? Promise.resolve() : Promise.reject(new Error('Should accept agreement')),
+              },
+            ]}
           />
           <MargBottom16 />
           <ProForm.Group>
-            <ProFormSelect
+            <ProFormSelect<string>
               name="status"
               label="队伍类别"
               valueEnum={{
@@ -107,12 +113,21 @@ const CreateModal: React.FC = () => {
                 1: '私有',
                 2: '加密',
               }}
-              initialValue={0}
               placeholder="请选择队伍类别"
               rules={[{ required: true, message: '请选择队伍类别!' }]}
+              onChange={(value) => {
+                console.log(typeof value)
+                setTeamType(value);
+              }}
             />
-            {/*TODO 当队伍为公开时，不需要填写密码*/}
-            <ProFormText.Password label="队伍密码" name="password" />
+          </ProForm.Group>
+          <ProForm.Group>
+            <ProFormText.Password
+              label="队伍密码"
+              name="password"
+              // 只有当队伍类别不为公开时才渲染密码框组件
+              hidden={teamType === '0'}
+            />
           </ProForm.Group>
         </ProForm>
       </ProCard>
