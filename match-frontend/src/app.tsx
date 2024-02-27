@@ -1,20 +1,18 @@
 import Footer from '@/components/Footer';
-import type {RunTimeLayoutConfig} from '@umijs/max';
-import {history} from '@umijs/max';
+import type { RunTimeLayoutConfig } from '@umijs/max';
+import { history } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
-import {AvatarDropdown} from './components/RightContent/AvatarDropdown';
-import {requestConfig} from './requestConfig';
-import {getLoginUserUsingGet} from '@/services/backend/userController';
-import {listTagVoUsingPost} from "@/services/backend/tagController";
+import { AvatarDropdown } from './components/RightContent/AvatarDropdown';
+import { requestConfig } from './requestConfig';
+import { getLoginUserUsingGet } from '@/services/backend/userController';
+import { listTagVoUsingPost } from '@/services/backend/tagController';
+import { message } from 'antd';
 
 const loginPath = '/user/login';
 const welcomePath = '/welcome';
 
-/**
- * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
- * */
-
 export async function getInitialState(): Promise<InitialState> {
+
   const initialState: InitialState = {
     currentUser: undefined,
     tagList: [],
@@ -27,19 +25,19 @@ export async function getInitialState(): Promise<InitialState> {
   const { location } = history;
   if (location.pathname !== loginPath && location.pathname !== welcomePath) {
     try {
-      const res = await getLoginUserUsingGet();
-      initialState.currentUser = res.data;
+      // 获取当前的登录用户
+      const result = await getLoginUserUsingGet();
+      if (result.data) {
+        // 用户已经登录
+        initialState.currentUser = result.data;
+      } else {
+        // 用户未登录，跳转到登录页
+        history.push(loginPath);
+      }
     } catch (error: any) {
       // 如果未登录
+      message.error('系统错误:', error)
     }
-
-    // 模拟登录用户
-    // const mockUser: API.LoginUserVO = {
-    //   userAvatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
-    //   userName: 'yupi',
-    //   userRole: 'admin',
-    // };
-    // initialState.currentUser = mockUser;
   }
   return initialState;
 }

@@ -2,7 +2,12 @@ export default [
   { path: '/user', layout: false, routes: [{ path: '/user/login', component: './User/Login' }] },
   { path: '/welcome', icon: 'smile', component: './Welcome', name: '欢迎页' },
 
-  { icon: 'bankOutlined', path: '/match/home', component: './Match/Home', name: '主页' },
+  {
+    icon: 'bankOutlined',
+    path: '/match/home',
+    component: './Match/Home',
+    name: '主页',
+  },
   {
     icon: 'searchOutlined',
     path: '/match/search',
