@@ -1,12 +1,15 @@
 import MargBottom16 from '@/components/margBottom16';
-import {TeamStatusEnum} from '@/constants/TeamStatus';
-import {joinTeamUsingPost, listTeamUserVoByPageUsingPost,} from '@/services/backend/teamController';
-import {PlusOutlined} from '@ant-design/icons';
-import {ActionType, PageContainer, ProColumns, ProTable} from '@ant-design/pro-components';
+import { TeamStatusEnum } from '@/constants/TeamStatus';
+import {
+  joinTeamUsingPost,
+  listTeamUserVoByPageUsingPost,
+} from '@/services/backend/teamController';
+import { PlusOutlined } from '@ant-design/icons';
+import { ActionType, PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
 import '@umijs/max';
-import {Avatar, Button, Input, message, Modal, Popconfirm, Space} from 'antd';
-import React, {useRef, useState} from 'react';
-import {useNavigate} from "react-router-dom";
+import { Avatar, Button, Input, message, Modal, Popconfirm, Space, Tag } from 'antd';
+import React, { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * 伙伴匹配 组队页
@@ -21,7 +24,7 @@ const MatchTeam: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [passWord, setPassWord] = useState('');
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   /**
    * 加入队伍
@@ -57,12 +60,6 @@ const MatchTeam: React.FC = () => {
    */
   const columns: ProColumns<API.TeamUserVO>[] = [
     {
-      title: 'id',
-      dataIndex: 'id',
-      valueType: 'text',
-      hideInSearch: true,
-    },
-    {
       title: '队伍名称',
       dataIndex: 'teamName',
       valueType: 'text',
@@ -71,6 +68,15 @@ const MatchTeam: React.FC = () => {
       title: '队伍描述',
       dataIndex: 'description',
       valueType: 'textarea',
+    },
+    {
+      title: '人数',
+      valueType: 'option',
+      render: (_, record) => (
+        <Tag color="magenta">
+          {record.hasNum} / {record.maxNum}
+        </Tag>
+      ),
     },
     {
       title: '创建人',
@@ -154,7 +160,7 @@ const MatchTeam: React.FC = () => {
             type="primary"
             key="primary"
             onClick={() => {
-              navigate('/match/team/add')
+              navigate('/match/team/add');
             }}
           >
             <PlusOutlined /> 新建
@@ -190,7 +196,6 @@ const MatchTeam: React.FC = () => {
           }}
         />
       </Modal>
-
     </PageContainer>
   );
 };

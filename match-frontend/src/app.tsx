@@ -8,10 +8,12 @@ import {getLoginUserUsingGet} from '@/services/backend/userController';
 import {listTagVoUsingPost} from "@/services/backend/tagController";
 
 const loginPath = '/user/login';
+const welcomePath = '/welcome';
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
+
 export async function getInitialState(): Promise<InitialState> {
   const initialState: InitialState = {
     currentUser: undefined,
@@ -23,7 +25,7 @@ export async function getInitialState(): Promise<InitialState> {
   }
   // 如果不是登录页面，执行
   const { location } = history;
-  if (location.pathname !== loginPath) {
+  if (location.pathname !== loginPath && location.pathname !== welcomePath) {
     try {
       const res = await getLoginUserUsingGet();
       initialState.currentUser = res.data;
