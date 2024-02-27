@@ -1,5 +1,5 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Card, theme } from 'antd';
+import {Card, Image, theme} from 'antd';
 import React from 'react';
 import defaultSettings from '../../config/defaultSettings';
 const Welcome: React.FC = () => {
@@ -21,14 +21,16 @@ const Welcome: React.FC = () => {
           style={{
             backgroundPosition: '100%',
             backgroundRepeat: 'no-repeat',
-            backgroundSize: '300px auto',
+            backgroundSize: '40% auto',
             backgroundImage:
               "url('https://ichef.bbci.co.uk/ace/ws/640/cpsprodpb/182B7/production/_118599989_gettyimages-2187838.jpg')",
           }}
+
         >
           <div style={{ fontSize: '24px', color: token.colorTextHeading }}>
             <strong>欢迎来到我们的用户匹配平台！</strong>
           </div>
+          {/*<Image src={'https://ichef.bbci.co.uk/ace/ws/640/cpsprodpb/182B7/production/_118599989_gettyimages-2187838.jpg'} />*/}
           <p style={{
             fontSize: '16px',
             color: token.colorTextSecondary,
