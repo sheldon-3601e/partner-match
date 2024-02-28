@@ -11,27 +11,25 @@
 <!-- TABLE OF CONTENTS -->
 
 <details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#关于项目">关于项目</a>
-      <ul>
-        <li><a href="#核心功能">项目架构图</a></li>
-        <li><a href="#技术栈">技术栈</a></li>
-          <li><a href="#网站截图">网站截图</a></li>
-      </ul>
-    </li>
-    <li><a href="#快速开始">快速开始</a>
-      <ul>
-        <li><a href="#先决条件">先决条件</a></li>
-        <li><a href="#安装">安装</a></li>
-      </ul>
-      </li>
-      <li>
-          <a href="TODO">TODO</a>
-      </li>
-    <li><a href="#联系方式">联系方式</a></li>
-  </ol>
+    <summary>Table of Contents</summary>
+    <ol>
+        <li>
+            <a href="#关于项目">关于项目</a>
+            <ul>
+                <li><a href="#核心功能">项目架构图</a></li>
+                <li><a href="#技术栈">技术栈</a></li>
+                <li><a href="#网站截图">网站截图</a></li>
+            </ul>
+        </li>
+        <li><a href="#快速开始">快速开始</a>
+            <ul>
+                <li><a href="#先决条件">先决条件</a></li>
+                <li><a href="#安装">安装</a></li>
+            </ul>
+        </li>
+        <li><a href="#TODO">TODO</a></li>
+        <li><a href="#联系方式">联系方式</a></li>
+    </ol>
 </details>
 
 
