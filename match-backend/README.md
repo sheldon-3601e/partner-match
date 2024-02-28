@@ -1,164 +1,137 @@
-# SpringBoot 项目初始模板
+<!-- PROJECT LOGO -->
 
-> 作者：[程序员鱼皮](https://github.com/liyupi)
-> 仅分享于 [编程导航知识星球](https://yupi.icu)
+<div align="center">
+    <img src="https://gitee.com/sheldon_kkk/typora-image/raw/master/img/202402280916147.svg" alt="Logo" width="100" height="100">
+    <h3 align="center">缘聚匹配平台</h3>
+    <p align="center">
+        基于 SpringBoot + React 的全栈匹配平台，实现标签匹配相似用户、组队管理、缓存预热等功能。
+    </p>
+</div>
 
-基于 Java SpringBoot 的项目初始模板，整合了常用框架和主流业务的示例代码。
+<!-- TABLE OF CONTENTS -->
 
-只需 1 分钟即可完成内容网站的后端！！！大家还可以在此基础上快速开发自己的项目。
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#关于项目">关于项目</a>
+      <ul>
+        <li><a href="#核心功能">项目架构图</a></li>
+        <li><a href="#技术栈">技术栈</a></li>
+          <li><a href="#网站截图">网站截图</a></li>
+      </ul>
+    </li>
+    <li><a href="#快速开始">快速开始</a>
+      <ul>
+        <li><a href="#先决条件">先决条件</a></li>
+        <li><a href="#安装">安装</a></li>
+      </ul>
+      </li>
+      <li>
+          <a href="TODO">TODO</a>
+      </li>
+    <li><a href="#联系方式">联系方式</a></li>
+  </ol>
+</details>
 
-[toc]
 
-## 模板特点
 
-### 主流框架 & 特性
+## 关于项目
 
-- Spring Boot 2.7.x（贼新）
-- Spring MVC
-- MyBatis + MyBatis Plus 数据访问（开启分页）
-- Spring Boot 调试工具和项目处理器
-- Spring AOP 切面编程
-- Spring Scheduler 定时任务
-- Spring 事务注解
+### 核心功能
 
-### 数据存储
+1. 用户注册和登录：用户可以通过注册账号并登录使用该网站，并填写个人信息。
+2. 标签匹配：系统根据用户标签，个性化的匹配其合适的队友。
+3. 组队功能：用户可以搜索和创建队伍，便于寻找到适合自己的队伍。
+4. 用户管理：管理员可以对用户进行管理，包括审核用户信息和处理用户投诉等。
 
+
+### 技术栈
+
+#### 后端
+
+- Spring Boot 框架
 - MySQL 数据库
-- Redis 内存数据库
-- Elasticsearch 搜索引擎
-- 腾讯云 COS 对象存储
-
-### 工具类
-
-- Easy Excel 表格处理
-- Hutool 工具库
-- Apache Commons Lang3 工具类
-- Lombok 注解
-
-### 业务特性
-
-- Spring Session Redis 分布式登录
-- 全局请求响应拦截器（记录日志）
-- 全局异常处理器
-- 自定义错误码
-- 封装通用响应类
+- Mybatis-Plus 及 mybatis X 自动生成
+- Redis 分布式登录及缓存 
+- Redisson 分布式锁和限流机制
+- 相似匹配度算法
+- Easy Excel处理工具
 - Swagger + Knife4j 接口文档
-- 自定义权限注解 + 全局校验
-- 全局跨域处理
-- 长整数丢失精度解决
-- 多环境配置
+- Hutool、Apache Common Utils 等工具库
+
+#### 前端
+
+- React 18
+- Ant Design Pro 5.x 脚手架
+- Umi 4前端框架
+- Ant Design 组件库
+- OpenAPI 前端代码生成
 
 
-## 业务功能
-
-- 提供示例 SQL（用户、帖子、帖子点赞、帖子收藏表）
-- 用户登录、注册、注销、更新、检索、权限管理
-- 帖子创建、删除、编辑、更新、数据库检索、ES 灵活检索
-- 帖子点赞、取消点赞
-- 帖子收藏、取消收藏、检索已收藏帖子
-- 帖子全量同步 ES、增量同步 ES 定时任务
-- 支持微信开放平台登录
-- 支持微信公众号订阅、收发消息、设置菜单
-- 支持分业务的文件上传
-
-### 单元测试
-
-- JUnit5 单元测试
-- 示例单元测试类
-
-### 架构设计
-
-- 合理分层
 
 
-## 快速上手
+### 网站截图
 
-> 所有需要修改的地方鱼皮都标记了 `todo`，便于大家找到修改的位置~
+![image-20240228093306141](https://gitee.com/sheldon_kkk/typora-image/raw/master/img/202402280933242.png)
 
-### MySQL 数据库
+![image-20240228093332922](https://gitee.com/sheldon_kkk/typora-image/raw/master/img/202402280933995.png)
 
-1）修改 `application.yml` 的数据库配置为你自己的：
+![image-20240228093357603](https://gitee.com/sheldon_kkk/typora-image/raw/master/img/202402280933676.png)
 
-```yml
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/my_db
-    username: root
-    password: 123456
-```
-
-2）执行 `sql/create_table.sql` 中的数据库语句，自动创建库表
-
-3）启动项目，访问 `http://localhost:8101/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了~
-
-![](doc/swagger.png)
-
-### Redis 分布式登录
-
-1）修改 `application.yml` 的 Redis 配置为你自己的：
-
-```yml
-spring:
-  redis:
-    database: 1
-    host: localhost
-    port: 6379
-    timeout: 5000
-    password: 123456
-```
-
-2）修改 `application.yml` 中的 session 存储方式：
-
-```yml
-spring:
-  session:
-    store-type: redis
-```
-
-3）移除 `MainApplication` 类开头 `@SpringBootApplication` 注解内的 exclude 参数：
-
-修改前：
-
-```java
-@SpringBootApplication(exclude = {RedisAutoConfiguration.class})
-```
-
-修改后：
+![image-20240228093350510](https://gitee.com/sheldon_kkk/typora-image/raw/master/img/202402280933592.png)
 
 
-```java
-@SpringBootApplication
-```
 
-### Elasticsearch 搜索引擎
+## 快速开始
 
-1）修改 `application.yml` 的 Elasticsearch 配置为你自己的：
+这是一个示例，说明如何在本地设置项目的说明。若要启动并运行本地副本，请按照以下简单示例步骤操作。
 
-```yml
-spring:
-  elasticsearch:
-    uris: http://localhost:9200
-    username: root
-    password: 123456
-```
+### 先决条件
 
-2）复制 `sql/post_es_mapping.json` 文件中的内容，通过调用 Elasticsearch 的接口或者 Kibana Dev Tools 来创建索引（相当于数据库建表）
+- npm@16.20.2
+- MySQL@8.1.0
+- Redis@3.2.1
 
-```
-PUT post_v1
-{
- 参数见 sql/post_es_mapping.json 文件
-}
-```
+### 安装
 
-这步不会操作的话需要补充下 Elasticsearch 的知识，或者自行百度一下~
+下面是一个示例，说明如何安装和设置应用。
 
-3）开启同步任务，将数据库的帖子同步到 Elasticsearch
+1. 克隆项目到本地
 
-找到 job 目录下的 `FullSyncPostToEs` 和 `IncSyncPostToEs` 文件，取消掉 `@Component` 注解的注释，再次执行程序即可触发同步：
+   ```sh
+   git clone https://github.com/your_username_/Project-Name.git
+   ```
 
-```java
-// todo 取消注释开启任务
-//@Component
-```
+2. 安装依赖s
+
+   ```sh
+   npm install
+   ```
+
+3. 在后端项目中，修改 MySQL 和 Redis 的配置
+
+4. 启动 Redis 服务
+
+5. 启动后端项目
+
+6. 启动前端项目
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## TODO
+
+- 队伍群聊功能
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTACT -->
+
+## 联系方式
+
+Your Name - Sheldon - email@Sheldon_kkk@126.com
+
+Personal homepage: [https://github.com/sheldon-3601e](https://github.com/sheldon-3601e)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+

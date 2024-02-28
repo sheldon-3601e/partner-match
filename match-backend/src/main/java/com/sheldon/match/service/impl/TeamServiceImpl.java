@@ -307,7 +307,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team>
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean joinTeam(TeamJoinRequest teamJoinRequest, User loginUser) {
-        // TODO 应对并发问题，加锁
         if (teamJoinRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
