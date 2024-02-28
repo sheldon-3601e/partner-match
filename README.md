@@ -6,6 +6,11 @@
     <p align="center">
         基于 SpringBoot + React 的全栈匹配平台，实现标签匹配相似用户、组队管理、缓存预热等功能。
     </p>
+     <p align="center">
+    <a href="https://github.com/sheldon-3601e/partner-match/tree/master/match-backend">后端模块</a>
+    ·
+    <a href="https://github.com/sheldon-3601e/partner-match/tree/master/match-frontend">前端模块</a>
+  </p>
 </div>
 
 <!-- TABLE OF CONTENTS -->
@@ -35,6 +40,8 @@
 
 
 ## 关于项目
+
+
 
 ### 核心功能
 
