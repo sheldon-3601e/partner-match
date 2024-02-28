@@ -5,12 +5,14 @@ export default [
   {
     icon: 'bankOutlined',
     path: '/match/home',
+    access: 'canLogin',
     component: './Match/Home',
     name: '主页',
   },
   {
     icon: 'searchOutlined',
     path: '/match/search',
+    access: 'canLogin',
     component: './Match/search',
     name: '搜索',
   },
@@ -18,6 +20,7 @@ export default [
     icon: 'barsOutlined',
     path: '/match/team',
     name: '队伍',
+    access: 'canLogin',
     routes: [
       {
         path: '/match/team',
@@ -39,6 +42,7 @@ export default [
     icon: 'userOutlined',
     path: '/match/account',
     name: '个人',
+    access: 'canLogin',
     routes: [
       {
         path: '/match/account/center',

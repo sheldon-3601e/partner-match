@@ -393,6 +393,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .map(pair -> pair.getKey().getId())
                 .collect(Collectors.toList());
 
+        if (CollUtil.isEmpty(topUserIdList)) {
+            return new ArrayList<>();
+        }
         QueryWrapper<User> topUserQueryWrapper = new QueryWrapper<>();
         topUserQueryWrapper.in("id", topUserIdList);
         // 未排序的用户 Map 集合
