@@ -24,7 +24,7 @@ const Welcome: React.FC = () => {
             backgroundRepeat: 'no-repeat',
             backgroundSize: '40% auto',
             backgroundImage:
-              "url('https://ichef.bbci.co.uk/ace/ws/640/cpsprodpb/182B7/production/_118599989_gettyimages-2187838.jpg')",
+              "url('http://ichef.bbci.co.uk/ace/ws/640/cpsprodpb/182B7/production/_118599989_gettyimages-2187838.jpg')",
           }}
 
         >
@@ -45,7 +45,9 @@ const Welcome: React.FC = () => {
             通过我们智能的匹配算法，您可以快速地找到与您兴趣相投的人，与他们交流、合作，共同探索更多可能性。<br />
             现在就加入我们，一起探索无限可能！<br />
             <dialog />
-            本站的功能需要登录才能使用，请您点击右上角登录键
+            <h4>
+              本站的功能需要登录才能使用，请您点击右上角登录键
+            </h4>
           </p>
         </div>
       </Card>
