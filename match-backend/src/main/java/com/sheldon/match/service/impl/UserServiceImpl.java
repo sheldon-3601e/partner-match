@@ -444,7 +444,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             queryWrapper.and(qw -> qw.like("userName", searchKey).or().like("userProfile", searchKey));
         }
         if (!CollectionUtils.isEmpty(tagNameList)) {
-            queryWrapper.apply("JSON_CONTAINS(tags, JSON_ARRAY(" + tagNameList.stream().map(tag -> "'" + tag + "'").collect(Collectors.joining(", ")) + "))");
+            queryWrapper.apply("(tags IS NOT NULL AND JSON_CONTAINS(tags, JSON_ARRAY(" + tagNameList.stream().map(tag -> "'" + tag + "'").collect(Collectors.joining(", ")) + ")))");
         }
 
         Page<User> userPage = this.page(new Page<>(current, size),

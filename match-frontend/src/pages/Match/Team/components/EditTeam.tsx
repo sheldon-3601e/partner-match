@@ -11,7 +11,7 @@ import {
 } from '@ant-design/pro-components';
 import { Button, message } from 'antd';
 import dayjs from 'dayjs';
-import React, { useRef } from 'react';
+import React, {useRef, useState} from 'react';
 
 interface EditTeamProps {
   teamUserVO: API.TeamUserVO; // 当前 TeamUserVO 对象
@@ -22,6 +22,8 @@ interface EditTeamProps {
 
 const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setVisible }) => {
   const restFormRef = useRef<ProFormInstance>();
+  const [teamType, setTeamType] = useState<string>('0');
+
 
   console.log(teamUserVO)
 
@@ -110,7 +112,7 @@ const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setV
       />
       <MargBottom16 />
       <ProForm.Group>
-        <ProFormSelect
+        <ProFormSelect<string>
           name="status"
           label="队伍类别"
           valueEnum={{
@@ -119,10 +121,19 @@ const EditTeam: React.FC<EditTeamProps> = ({ teamUserVO, onFinish, visible, setV
             2: '加密',
           }}
           placeholder="请选择队伍类别"
+          onChange={(value) => {
+            // console.log(typeof value);
+            setTeamType(value);
+          }}
           rules={[{ required: true, message: '请选择队伍类别!' }]}
         />
         {/*TODO 当队伍为公开时，不需要填写密码*/}
-        <ProFormText.Password label="队伍密码" name="password" />
+        <ProFormText.Password
+          label="队伍密码"
+          name="password"
+          // 只有当队伍类别不为公开时才渲染密码框组件
+          hidden={teamType === '0'}
+        />
       </ProForm.Group>
     </ModalForm>
   );

@@ -43,7 +43,7 @@ const handleTagList = (tagList: API.TagVO[]) => {
 const BaseView: React.FC = () => {
   const { styles } = useStyles(); // 使用 useStyles 自定义样式
   const { initialState } = useModel('@@initialState');
-  console.log(initialState);
+  // console.log(initialState);
 
   const [currentUser] = useState(initialState?.currentUser);
   const [tagList] = useState(handleTagList(initialState?.tagList ?? []));
@@ -86,6 +86,8 @@ const BaseView: React.FC = () => {
     const res = await updateMyUserUsingPost(value)
     if (res.data) {
       message.success('更新基本信息成功');
+      // 刷新页面
+      // location.reload()
     } else {
       message.error('更新失败，请您重试');
     }

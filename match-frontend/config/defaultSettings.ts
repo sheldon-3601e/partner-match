@@ -16,7 +16,7 @@ const Settings: ProLayoutProps & {
   fixSiderbar: true,
   colorWeak: false,
   title: '缘聚',
-  logo:'./logo.svg',
+  logo: '/logo.svg',
   pwa: true,
   iconfontUrl: '',
   token: {

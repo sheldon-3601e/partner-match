@@ -118,15 +118,6 @@ const Login: React.FC = () => {
               />
             </>
           )}
-
-          <div
-            style={{
-              marginBottom: 24,
-              textAlign: 'right',
-            }}
-          >
-            <a>新用户注册</a>
-          </div>
         </LoginForm>
       </div>
       <Footer />

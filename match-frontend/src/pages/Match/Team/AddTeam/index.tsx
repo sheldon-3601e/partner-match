@@ -13,16 +13,16 @@ import {
 import '@umijs/max';
 import { message } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CreateModal: React.FC = () => {
   const navigate = useNavigate();
   const [teamType, setTeamType] = useState<string>('0');
 
-  useEffect(() => {
-    console.log('teamType changed', teamType);
-  }, [teamType]);
+  // useEffect(() => {
+  //   console.log('teamType changed', teamType);
+  // }, [teamType]);
 
   /**
    * 添加节点
@@ -116,7 +116,7 @@ const CreateModal: React.FC = () => {
               placeholder="请选择队伍类别"
               rules={[{ required: true, message: '请选择队伍类别!' }]}
               onChange={(value) => {
-                console.log(typeof value)
+                // console.log(typeof value);
                 setTeamType(value);
               }}
             />

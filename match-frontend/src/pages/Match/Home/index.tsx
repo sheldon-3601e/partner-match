@@ -1,10 +1,10 @@
 import MarginBottom16 from '@/components/margBottom16';
-import {listMatchUSerVoUsingPost} from '@/services/backend/userController';
-import {RedoOutlined} from '@ant-design/icons';
-import {PageContainer, ProCard} from '@ant-design/pro-components';
+import { listMatchUSerVoUsingPost } from '@/services/backend/userController';
+import { RedoOutlined } from '@ant-design/icons';
+import { PageContainer, ProCard } from '@ant-design/pro-components';
 import '@umijs/max';
-import {Avatar, Button, message, Tag} from 'antd';
-import React, {useEffect, useRef, useState} from 'react';
+import { Avatar, Button, message, Tag } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 
 /**
  * 伙伴匹配 主页
@@ -16,23 +16,23 @@ const MatchHome: React.FC = () => {
   const initQueryParams = {
     current: 1,
     pageSize: 8,
-    matchNum: 32
+    matchNum: 32,
   };
   const [queryParams, setQueryParams] = useState(initQueryParams);
   const [recommendUserList, setRecommendUserList] = useState<API.UserVO[]>([]);
 
-  const loading = useRef<boolean>(true)
+  const loading = useRef<boolean>(true);
 
   // 获取推荐用户
   const loadData = async () => {
-    loading.current = true
+    loading.current = true;
     const res = await listMatchUSerVoUsingPost(queryParams);
     if (res.data) {
       setRecommendUserList(res.data.records ?? []);
     } else {
-      message.error('获取匹配用户失败，请您刷新！')
+      message.error('获取匹配用户失败，请您刷新！');
     }
-    loading.current = false
+    loading.current = false;
   };
 
   // 刷新页面数据
@@ -59,7 +59,13 @@ const MatchHome: React.FC = () => {
         title="推荐用户"
         extra={
           <div>
-            <Button type="primary" size={"large"} shape="round" icon={<RedoOutlined />} onClick={refreshData}>
+            <Button
+              type="primary"
+              size={'large'}
+              shape="round"
+              icon={<RedoOutlined />}
+              onClick={refreshData}
+            >
               换一批
             </Button>
           </div>
@@ -76,15 +82,23 @@ const MatchHome: React.FC = () => {
             bordered
             title={
               <div>
-                <Avatar src={item.userAvatar} style={{ marginRight: '16px' }} />
+                {item.userAvatar ? (
+                  <Avatar src={item.userAvatar} style={{ marginRight: '16px' }} />
+                ) : (
+                  <Avatar style={{ marginRight: '16px' }}>空白</Avatar>
+                )}
                 {item.userName}
               </div>
             }
             extra={
               <div>
-                <Button key={item.id} type={'primary'} onClick={() => {
-                  message.warning('功能正在开发，敬请期待！')
-                }}>
+                <Button
+                  key={item.id}
+                  type={'primary'}
+                  onClick={() => {
+                    message.warning('功能正在开发，敬请期待！');
+                  }}
+                >
                   关注
                 </Button>
               </div>

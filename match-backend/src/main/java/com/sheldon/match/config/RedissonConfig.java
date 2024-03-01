@@ -24,6 +24,8 @@ public class RedissonConfig {
 
     private String port;
 
+    private String password;
+
     @Bean
     public RedissonClient redissonClient() {
         // 1. Create config object
@@ -31,6 +33,7 @@ public class RedissonConfig {
         String url = String.format("redis://%s:%s", host, port);
         config.useSingleServer()
                 .setAddress(url)
+                .setPassword(password)
                 .setDatabase(4);
         // 2. Create Redisson instance
 
