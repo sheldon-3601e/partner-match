@@ -16,6 +16,7 @@ import com.sheldon.match.model.vo.UserVO;
 import com.sheldon.match.service.UserService;
 import com.sheldon.match.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -272,9 +273,15 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
+        List<String> tags = userUpdateMyRequest.getTags();
+        if (CollectionUtils.isEmpty(tags)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String tagsString = tags.toString();
         User user = new User();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
         user.setId(loginUser.getId());
+        user.setTags(tagsString);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);

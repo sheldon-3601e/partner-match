@@ -1,10 +1,17 @@
-import {useModel} from '@@/plugin-model';
-import {UploadOutlined} from '@ant-design/icons'; // 引入上传图标
-import {ProForm, ProFormFieldSet, ProFormSelect, ProFormText, ProFormTextArea,} from '@ant-design/pro-components'; // 引入 ProForm 相关组件
-import {Button, Input, message, Upload} from 'antd'; // 引入 antd 组件
-import React, {useState} from 'react'; // 引入 React 库
+import { getInitialState } from '@/app';
+import { updateMyUserUsingPost } from '@/services/backend/userController';
+import { useModel } from '@@/plugin-model';
+import { UploadOutlined } from '@ant-design/icons'; // 引入上传图标
+import {
+  ProForm,
+  ProFormFieldSet,
+  ProFormSelect,
+  ProFormText,
+  ProFormTextArea,
+} from '@ant-design/pro-components'; // 引入 ProForm 相关组件
+import { Button, Input, message, Upload } from 'antd'; // 引入 antd 组件
+import React, { useState } from 'react'; // 引入 React 库
 import useStyles from './index.style';
-import {updateMyUserUsingPost} from "@/services/backend/userController";
 
 // 自定义电话号码验证器
 const validatorPhone = (rule: any, value: string[], callback: (message?: string) => void) => {
@@ -47,7 +54,7 @@ const BaseView: React.FC = () => {
 
   const [currentUser] = useState(initialState?.currentUser);
   const [tagList] = useState(handleTagList(initialState?.tagList ?? []));
-
+  const [loading, setLoading] = useState(false);
 
   // TODO 上传头像
   // AvatarView 组件，用于显示头像
@@ -74,7 +81,7 @@ const BaseView: React.FC = () => {
       if (currentUser.userAvatar) {
         return currentUser.userAvatar;
       }
-      const url = 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png';
+      const url = '/empty_avatar.png';
       return url;
     }
     return '';
@@ -82,12 +89,18 @@ const BaseView: React.FC = () => {
 
   // 处理表单提交事件
   const handleFinish = async (value: API.UserUpdateMyRequest) => {
-    console.log(value)
-    const res = await updateMyUserUsingPost(value)
+    console.log(value);
+    setLoading(true);
+    const res = await updateMyUserUsingPost(value);
     if (res.data) {
-      message.success('更新基本信息成功');
       // 刷新页面
-      // location.reload()
+      await getInitialState();
+      // 刷新页面
+      message.success('更新基本信息成功');
+      setTimeout(function () {
+        setLoading(false);
+        window.location.reload();
+      }, 100); // 5秒后刷新页面
     } else {
       message.error('更新失败，请您重试');
     }
@@ -99,6 +112,7 @@ const BaseView: React.FC = () => {
         <div className={styles.left}>
           {/* 表单 */}
           <ProForm
+            loading={loading}
             layout="vertical"
             onFinish={(value) => handleFinish(value)}
             submitter={{
@@ -146,7 +160,6 @@ const BaseView: React.FC = () => {
                 },
               ]}
             />
-            {/*TODO 标签展示列表应该与用户已经选择的标签互斥*/}
             <ProFormSelect
               name="tags"
               label="标签"
@@ -154,11 +167,11 @@ const BaseView: React.FC = () => {
               fieldProps={{
                 mode: 'multiple',
               }}
-              placeholder="Please select favorite colors"
+              placeholder="请选择标签"
               rules={[
                 {
                   required: true,
-                  message: 'Please select your favorite colors!',
+                  message: '请选择标签!',
                   type: 'array',
                 },
               ]}
